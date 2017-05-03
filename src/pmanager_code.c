@@ -19,6 +19,7 @@
 
 #define TRUE 1
 #define FALSE 0
+#define ERROR -1
 
 #define COMMAND_LENGTH 30
 
@@ -302,7 +303,7 @@ void all_lowercase(char* word){
  *	Compara le due stringhe passate come argomenti
  *	Risultato:
  *	1 (TRUE) - Stringhe uguali
- *  0 (FALSE)- Stringhe diverse
+ *      0 (FALSE)- Stringhe diverse
 */
 int string_equals( char* first , char* second){
 	if(strlen(first) != strlen(second))
