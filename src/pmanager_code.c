@@ -74,96 +74,106 @@ int main( int argc, char *argv[] ){
 
 		//BISOGNA RISOLVERE BUG:
 		//Quando si inserisce lo spazio c'è un bug
-		for(int i = 0; i < COMMAND_LENGTH; i++){
-			if(command[i] == '\n')
-				command[i] = '\0';				//Sostituisce l'invio con il terminatore della stringa*/
+
+		if(strlen(command) <= 1){	//SE IL COMANDO NON E' SOLO UN INVIO
+			command[0] = '\0';
+			strcpy(command,	"space\n");
+		}
+		
+		int found_flag = FALSE;
+		for(int i = 0;(i < COMMAND_LENGTH) && (found_flag == FALSE); i++){
+			if(command[i] == '\n'){
+				command[i] = '\0';				//Sostituisce l'invio con il terminatore della stringa
+				found_flag = TRUE;
+			}
 		}
 
 		all_lowercase(command);	//viene convertita la stringa comando in lower case
 
-  	/**
-	 *  Fase di riduzione della stringa del comando in tokens per dividere il comando da eventuali argomenti
-	*/
-	char* token = strtok(command, " ");	//Tokenizer, divide in tokens la stringa dove trova blank
+		/**
+		 *  Fase di riduzione della stringa del comando in tokens per dividere il comando da eventuali argomenti
+		*/
+		char* token = strtok(command, " ");	//Tokenizer, divide in tokens la stringa dove trova blank
 
-  	for (int j = 0; j < 9; ++j)
-  		if (string_equals(token,commands[j]) == TRUE)
-  			command_num = j;	//Per ogni comando, se la stringa è uguale ad esso, command num viene impostato all'indice di command[]
-
+		for (int j = 0; j < 9; ++j)
+			if (string_equals(token,commands[j]) == TRUE)
+				command_num = j;	//Per ogni comando, se la stringa è uguale ad esso, command num viene impostato all'indice di command[]
+		if(string_equals(token,"space"))
+			command_num = -1;
 
 		switch(command_num){
-	  		case 0:{ //phelp
+			case -1:break;	//spazio
+			case 0:{ //phelp
 					if(phelp_f() == FALSE){
 							fprintf(stderr, "%s", "ERROR in phelp function\n");
 							return 1;
 					}
 					break;
-	  		}
-		  	case 1:{ //quit
+			}
+			case 1:{ //quit
 				if(checkInput(0,command_num,token,NULL)){
 					return 0;
 				}
-		  		break;
-		  	}
-		  	case 2:{ //plist
+				break;
+			}
+			case 2:{ //plist
 				if(checkInput(0,command_num,token,NULL)){
 					if(plist_f() == FALSE){
 							fprintf(stderr, "%s", "ERROR in plist function\n");
 							return 1;
 					}
 				}
-		  		break;
-		  	}
-		  	case 3:{ //pnew
+				break;
+			}
+			case 3:{ //pnew
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
 				}
-		  		break;
-		  	}
-		  	case 4:{ //pinfo
+				break;
+			}
+			case 4:{ //pinfo
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
 				}
-		  		break;
-		  	}
-		  	case 5:{ //pclose
+				break;
+			}
+			case 5:{ //pclose
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
 				}
-		  		break;
-		  	}
-		  	case 6:{ //pspawn
+				break;
+			}
+			case 6:{ //pspawn
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
 				}
-		  		break;
-		  	}
-		  	case 7:{ //prmall
+				break;
+			}
+			case 7:{ //prmall
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
 				}
-		  		break;
-		  	}
-		  	case 8:{ //ptree
+				break;
+			}
+			case 8:{ //ptree
 				if(checkInput(0,command_num,token,NULL)){
 					printf("Alla grande, procedi");
 				}
-		  		break;
-		  	}
-		  	case 9:{ //Si potrebbe aggiungere qualcosa
-		  		break;
-		  	}
-		  	default:{
-		  		printf("\nStringa non valida,reinserire.\nPer ulteriori informazioni sull' utilizzo di questo programma digitare phelp\n");
-		  		break;
-		  	}
+				break;
+			}
+			case 9:{ //Si potrebbe aggiungere qualcosa
+				break;
+			}
+			default:{
+				printf("\nStringa non valida,reinserire.\nPer ulteriori informazioni sull' utilizzo di questo programma digitare phelp\n");
+				break;
+			}
 		}
-
 	}while(1);
 	return 0;
 }
@@ -243,10 +253,7 @@ int ptree_f(){
 	return TRUE;
 }
 
-/**
- *	Funzione che controlla se l'input ha il corretto numero di argomenti
- *	L'eventuale argomento viene ritornato con argumentReturn
-*/
+
 int checkInput(int arguments_number, int command_num, char * token, char* argumentReturn){
 	int res = FALSE;
 
@@ -282,6 +289,9 @@ int checkInput(int arguments_number, int command_num, char * token, char* argume
 	return res;
 }
 
+
+
+
 /**
  *	Funzioni di gestione stringhe
 */
@@ -303,7 +313,7 @@ void all_lowercase(char* word){
  *	Compara le due stringhe passate come argomenti
  *	Risultato:
  *	1 (TRUE) - Stringhe uguali
- *      0 (FALSE)- Stringhe diverse
+ *  0 (FALSE)- Stringhe diverse
 */
 int string_equals( char* first , char* second){
 	if(strlen(first) != strlen(second))
@@ -313,4 +323,5 @@ int string_equals( char* first , char* second){
 			if(first[i] != second[i]) return FALSE;
 	return TRUE;
 }
+
 
