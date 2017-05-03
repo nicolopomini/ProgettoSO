@@ -128,41 +128,59 @@ int main( int argc, char *argv[] ){
 			case 3:{ //pnew
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
-					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
-				}
+					if(pnew_f(argumentReturn) == FALSE){
+						fprintf(stderr, "%s", "ERROR in pnew function\n");
+						return 1;
+					}
+				}		
 				break;
 			}
 			case 4:{ //pinfo
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
-					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
+					if(pinfo_f(argumentReturn) == FALSE){
+						fprintf(stderr, "%s", "ERROR in pinfo function\n");
+						return 1;
+					}
 				}
 				break;
 			}
 			case 5:{ //pclose
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
-					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
+					if(pclose_f(argumentReturn) == FALSE){
+						fprintf(stderr, "%s", "ERROR in pclose function\n");
+						return 1;
+					}
 				}
 				break;
 			}
 			case 6:{ //pspawn
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
-					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
+					if(pspawn_f(argumentReturn) == FALSE){
+						fprintf(stderr, "%s", "ERROR in pspawn function\n");
+						return 1;
+					}			
 				}
 				break;
 			}
 			case 7:{ //prmall
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
-					printf("Alla grande, procedi\nL'argomento è %s\n", argumentReturn);
+					if(pspawn_f(argumentReturn) == FALSE){
+						fprintf(stderr, "%s", "ERROR in pspawn function\n");
+						return 1;
+					}				
 				}
 				break;
 			}
 			case 8:{ //ptree
 				if(checkInput(0,command_num,token,NULL)){
-					printf("Alla grande, procedi");
+					if(ptree_f() == FALSE){
+						fprintf(stderr, "%s", "ERROR in ptree function\n");
+						return 1;
+					}				
 				}
 				break;
 			}
@@ -204,6 +222,7 @@ int phelp_f(){
  *
 */
 int plist_f(){
+	printf("Chiamato plist\n");
 
 	return TRUE;
 }
@@ -212,7 +231,8 @@ int plist_f(){
  *
 */
 int pnew_f(char* name){
-
+	printf("Chiamato pnew con nome \"%s\"\n",name);
+	
 	return TRUE;
 }
 
@@ -220,11 +240,13 @@ int pnew_f(char* name){
  *
 */
 int pinfo_f(char* name){
+	printf("Chiamato pinfo con nome \"%s\"\n",name);
 
 	return TRUE;
 }
 
 int pclose_f(char*name){
+	printf("Chiamato pclose con nome \"%s\"\n",name);
 
 	return TRUE;
 }
@@ -233,6 +255,7 @@ int pclose_f(char*name){
  *
 */
 int pspawn_f(char* name){
+	printf("Chiamato pspawn con nome \"%s\"\n",name);
 
 	return TRUE;
 }
@@ -241,6 +264,7 @@ int pspawn_f(char* name){
  *
 */
 int prmall_f(char* name){
+	printf("Chiamato prmall con nome \"%s\"\n",name);
 
 	return TRUE;
 }
@@ -249,6 +273,7 @@ int prmall_f(char* name){
  *
 */
 int ptree_f(){
+	printf("Chiamato ptree\n");
 
 	return TRUE;
 }
