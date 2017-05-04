@@ -116,11 +116,13 @@ int main( int argc, char *argv[] ){
 		switch(command_num){
 			case -1:break;	//spazio
 			case 0:{ //phelp
+				if(checkInput(0,command_num,token,NULL)){
 					if(phelp_f() == FALSE){
 							fprintf(stderr, "%s", "ERROR in phelp function\n");
 							return 1;
 					}
-					break;
+				}					
+				break;
 			}
 			case 1:{ //quit
 				if(checkInput(0,command_num,token,NULL)){
