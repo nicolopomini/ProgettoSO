@@ -1,5 +1,5 @@
-SOURCECODE=../src/pmanager_code.c list.c map.c const.c
-SOURCEPROCESS=../src/process.c list.c const.c
+SOURCECODE=../src/pmanager_code.c list.c map.c
+SOURCEPROCESS=../src/process.c list.c
 
 .PHONY: help clean build assets test
 
