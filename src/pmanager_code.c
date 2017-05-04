@@ -11,11 +11,18 @@
 *   pnew <nome>​ : crea un nuovo processo con nome <nome>
 *   pinfo <nome>​ : fornisce informazioni sul processo <nome> (almeno ​ pid ​ e ​ ppid ​ )
 *   pclose: esce dalla shell custom
+
+	Da compilare gcc pmanager_code.c list.c map.c const.c
+	E prima compilare anche gcc process.c list.c const.c -o processo
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+#include <unistd.h>
+#include "list.h"
+#include "map.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -24,6 +31,9 @@
 #define COMMAND_LENGTH 30
 
 char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
+
+list children;
+map names;
 
 int phelp_f();	// "_f" perchè altrimenti pclose è in conflitto con una funzione pclose sulle pipe
 int plist_f();
@@ -45,6 +55,8 @@ int string_equals( char* first , char* second);
 
 
 int main( int argc, char *argv[] ){
+	list_init(&children);
+	map_init(&names);
 	/**
 	 * 	Fase di lettura degli argomenti
 	*/
@@ -223,7 +235,18 @@ int phelp_f(){
 */
 int plist_f(){
 	printf("Chiamato plist\n");
-
+	if(list_empty(children))
+		printf("Manager non ha generato nessun processo\n");
+	else
+	{
+		printf("Manager ha generato i seguenti processi:\n");
+		list now = children;
+		while(now != NULL)
+		{
+			printf("\t%d\n", now->pid);
+			now = now->next;
+		}
+	}
 	return TRUE;
 }
 
@@ -232,7 +255,20 @@ int plist_f(){
 */
 int pnew_f(char* name){
 	printf("Chiamato pnew con nome \"%s\"\n",name);
-	
+	printf("Richiesta di creazione di un nuovo processo con nome \"%s\"\n", name);
+	int f = fork();
+	if(f < 0)
+		return FALSE;
+	else if(f == 0)
+	{
+		execv("./processo",NULL);
+		return FALSE;	//non dovrebbe mai essere eseguito
+	}
+	else
+	{
+		list_insert(&children, f);
+		map_add(&names, name, f);
+	}
 	return TRUE;
 }
 
@@ -241,7 +277,6 @@ int pnew_f(char* name){
 */
 int pinfo_f(char* name){
 	printf("Chiamato pinfo con nome \"%s\"\n",name);
-
 	return TRUE;
 }
 
@@ -348,5 +383,3 @@ int string_equals( char* first , char* second){
 			if(first[i] != second[i]) return FALSE;
 	return TRUE;
 }
-
-
