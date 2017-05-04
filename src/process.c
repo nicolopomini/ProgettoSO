@@ -5,10 +5,19 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
-#include <string.h>
 #include "list.h"
 #include "const.h"
 
+void printlist(list l)
+{
+	if (l == NULL) {
+        printf("la lista è vuota\n");
+    }
+    while (l != NULL) {
+        printf("%d\n", l->pid);
+        l = l->next;
+    }
+}
 list children;
 int pid_manager = -1;	//progressivo: indice dei figli
 /*
@@ -30,7 +39,7 @@ void init()
 	Clona il processo, assegnando al figlio il nome 'nomepadre_progressivo'
 	Inserisce il processo nella lista del padre
 */
-void clone()
+void pspawn(int sig)
 {
 	int f = fork();
 	if(f < 0)
@@ -46,12 +55,29 @@ void clone()
 	else	//padre
 	{
 		list_insert(&children, f);
-		printf("Processo %d generato.\n", f);
+		printf("Clonazione avvenuta. Processo %d generato.\n", f);
+		printf("Processo %d: ",getpid());
+		printlist(children);
 	}
+}
+void prmall(int sig)	//problema di segnali di ritorno!
+{
+	int killed;
+	while (children != NULL) 
+	{
+        kill(children->pid,SIGUSR1);
+        killed = wait(NULL);
+        printf("%d killed\n", killed);
+        children = children->next;
+    }
+    kill(getpid(),SIGKILL);
 }
 int main()
 {
+	signal(SIGINT,pspawn);
+	signal(SIGUSR1,prmall);
 	init();
-	clone();
+	while(1)
+		pause();
 	return 0;
 }
