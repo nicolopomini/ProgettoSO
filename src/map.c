@@ -1,8 +1,7 @@
-#include "const.h"
 #include "map.h"
 #include <stdlib.h>
 #include <string.h>
-
+const int MAP_STRING_MAX_LEN = 100;
 map map_lookup_getnode(map m, char *name)
 {
 	map res;
@@ -66,15 +65,15 @@ void map_init(map *m)
 {
 	*m = NULL;
 }
-void map_add(map *m, char *name, int pid)
+int map_add(map *m, char *name, int pid)
 {
-	int res;
+	int res, ret = 1;
 	if(*m != NULL)
 		res = strcmp(name,(*m)->name);
 	if(*m == NULL)
 	{
 		map n = (map)malloc(sizeof(struct node_t));
-		n->name = (char*)malloc(sizeof(char)*(STRING_MAX_LEN + 1));
+		n->name = (char*)malloc(sizeof(char)*(MAP_STRING_MAX_LEN + 1));
 		strcpy(n->name,name);
 		n->pid = pid;
 		n->sx = NULL;
@@ -82,11 +81,12 @@ void map_add(map *m, char *name, int pid)
 		*m = n;
 	}
 	else if(res == 0)
-		(*m)->pid = pid;
+		ret = 0;
 	else if(res < 0)
-		map_add(&(*m)->sx, name,pid);
+		ret = map_add(&(*m)->sx, name,pid);
 	else
-		map_add(&(*m)->dx, name,pid);
+		ret = map_add(&(*m)->dx, name,pid);
+	return ret;
 }
 int map_lookup(map m, char *name)
 {
