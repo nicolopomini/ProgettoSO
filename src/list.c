@@ -1,7 +1,5 @@
-#include "const.h"
 #include "list.h"
 #include <stdlib.h>
-#include <string.h>
 
 void list_init(list *l)
 {
@@ -73,7 +71,7 @@ int main()
 	list_insert(&l,2);
 	printlist(l);
 	printf("\n");
-	list_remove(&l,12);
+	list_remove(&l,2);
 	printlist(l);
 	printf("\n");
 	list_remove(&l,12);
