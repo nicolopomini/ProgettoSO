@@ -20,21 +20,21 @@ void list_insert(list *l, int pid)
 }
 void list_remove(list *l, int pid)
 {
-	node *prec = *l;
-	while(*l != NULL)
+	if((*l)->pid == pid)	//elimino in testa
 	{
-		if((*l)->pid == pid) //elimino
+		node *del = *l;
+		*l = (*l)->next;
+		free(del);
+	}
+	else
+	{
+		node *now = *l;
+		while((*l)->next != NULL && (*l)->pid != pid)
 		{
-			prec->next = (*l)->next;
-			//free((*l)->name);
-			free(*l);
-			break;
+			now = (*l)->next;
 		}
-		else
-		{
-			prec = *l;
-			l = &(*l)->next;
-		}
+		if(now != NULL)
+			free(now);
 	}
 }
 void list_delete(list *l)
