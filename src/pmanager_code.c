@@ -12,8 +12,8 @@
 *   pinfo <nome>​ : fornisce informazioni sul processo <nome> (almeno ​ pid ​ e ​ ppid ​ )
 *   pclose: esce dalla shell custom
 
-	Da compilare gcc pmanager_code.c list.c map.c const.c
-	E prima compilare anche gcc process.c list.c const.c -o processo
+	Da compilare gcc pmanager_code.c list.c map.c
+	E prima compilare anche gcc process.c list.c -o processo
 */
 
 #include <stdio.h>
