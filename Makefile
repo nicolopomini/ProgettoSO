@@ -1,4 +1,5 @@
-SOURCECODE=../src/pmanager_code.c
+SOURCECODE=../src/pmanager_code.c list.c map.c const.c
+SOURCEPROCESS=../src/process.c list.c const.c
 
 .PHONY: help clean build assets test
 
@@ -12,7 +13,7 @@ clean:
 	@ rm -rf build; rm -rf assets;
 
 build: clean src/pmanager_code.c #compila sempre???
-	@ mkdir build; cd build; gcc -o pmanager $(SOURCECODE);
+	@ mkdir build; cd build; gcc -o processo $(SOURCEPROCESS) gcc -o pmanager $(SOURCECODE);
 
 assets: build
 	@ mkdir assets;
