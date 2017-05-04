@@ -1,12 +1,11 @@
 /*
-	Da compilare assieme a list.c e const.c
+	Da compilare assieme a list.c 
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 #include "list.h"
-#include "const.h"
 
 void printlist(list l)
 {
