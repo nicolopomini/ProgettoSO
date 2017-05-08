@@ -1,22 +1,31 @@
-SOURCECODE= ./../src/pmanager_code.c ./../src/list.c ./../src/map.c
-SOURCEPROCESS= ./../src/process.c ./../src/list.c
 
-.PHONY: help clean build assets test
+#Path dei files da compilare a partire dall'interno della directory BUIL
+SOURCECODEBUILDPATH= ./../src/pmanager_code.c ./../src/list.c ./../src/map.c
+SOURCEPROCESSBUILDPATH= ./../src/process.c ./../src/list.c
+
+#Regole fittizie
+.PHONY: help clean
 
 #Regola di default
+#Questa stampa una descrizione del progetto che contiene anche i nomi e i numeri di matricola dei membri del gruppo
 help:
-	@ echo Domenco Stefani , Matteo Tadiello, Nicoló Pomini, Ivan Martini; 
-	@ echo 178495 - 180008 - 180058 - 180087; 
+	@ echo Domenico Stefani , Matteo Tadiello, Nicoló Pomini, Ivan Martini;
+	@ echo 178495 - 180008 - 180058 - 180087;
 	@ echo --Descrizione del progetto--;
 
+#Clean: elimina le eventuali directory create con le regole build e assets
 clean:
 	@ rm -rf build; rm -rf assets;
 
-build: clean src/pmanager_code.c #compila sempre???
-	@ mkdir build; cd build; gcc -o processo $(SOURCEPROCESS); gcc -o pmanager $(SOURCECODE);
+#Build: compila in maniera corretta il codice sorgente del processo
+build: src/*.c src/*.h
+	$(MAKE) clean;
+	@ mkdir build; cd build; gcc -o processo $(SOURCEPROCESSBUILDPATH); gcc -o pmanager $(SOURCECODEBUILDPATH);
 
-assets: build
+assets:
+	$(MAKE) build
 	@ mkdir assets;
 
-test: assets
+test:
+	$(MAKE) assets
 	@ echo Test mode is under developement

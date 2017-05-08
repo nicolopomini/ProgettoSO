@@ -91,7 +91,7 @@ int main( int argc, char *argv[] ){
 			command[0] = '\0';
 			strcpy(command,	"space\n");
 		}
-		
+
 		int found_flag = FALSE;
 		for(int i = 0;(i < COMMAND_LENGTH) && (found_flag == FALSE); i++){
 			if(command[i] == '\n'){
@@ -121,7 +121,7 @@ int main( int argc, char *argv[] ){
 							fprintf(stderr, "%s", "ERROR in phelp function\n");
 							return 1;
 					}
-				}					
+				}
 				break;
 			}
 			case 1:{ //quit
@@ -146,7 +146,7 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr, "%s", "ERROR in pnew function\n");
 						return 1;
 					}
-				}		
+				}
 				break;
 			}
 			case 4:{ //pinfo
@@ -175,7 +175,7 @@ int main( int argc, char *argv[] ){
 					if(pspawn_f(argumentReturn) == FALSE){
 						fprintf(stderr, "%s", "ERROR in pspawn function\n");
 						return 1;
-					}			
+					}
 				}
 				break;
 			}
@@ -185,7 +185,7 @@ int main( int argc, char *argv[] ){
 					if(pspawn_f(argumentReturn) == FALSE){
 						fprintf(stderr, "%s", "ERROR in pspawn function\n");
 						return 1;
-					}				
+					}
 				}
 				break;
 			}
@@ -194,7 +194,7 @@ int main( int argc, char *argv[] ){
 					if(ptree_f() == FALSE){
 						fprintf(stderr, "%s", "ERROR in ptree function\n");
 						return 1;
-					}				
+					}
 				}
 				break;
 			}

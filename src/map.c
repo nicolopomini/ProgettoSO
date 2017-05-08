@@ -1,7 +1,9 @@
 #include "map.h"
 #include <stdlib.h>
 #include <string.h>
+
 const int MAP_STRING_MAX_LEN = 100;
+
 map map_lookup_getnode(map m, char *name)
 {
 	map res;
@@ -105,7 +107,7 @@ void printmap(map m)
 }
 int main()
 {
-	char *a = "A", *b = "B", *c = "C"; 
+	char *a = "A", *b = "B", *c = "C";
 	map m;
 	map_init(&m);
 	map_add(&m,b,1);
