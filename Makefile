@@ -1,7 +1,7 @@
 
 #Path dei files da compilare a partire dall'interno della directory BUIL
-SOURCECODEBUILDPATH= ./../src/pmanager_code.c ./../src/list.c ./../src/map.c
-SOURCEPROCESSBUILDPATH= ./../src/process.c ./../src/list.c
+SOURCECODEBUILDPATH= ./../src/pmanager_code.c ./../src/tree.c ./../src/map.c
+SOURCEPROCESSBUILDPATH= ./../src/process.c
 
 #Regole fittizie
 .PHONY: help clean
