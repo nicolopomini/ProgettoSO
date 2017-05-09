@@ -21,8 +21,8 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include "list.h"
 #include "map.h"
+#include "tree.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -32,8 +32,8 @@
 
 char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
 
-list children;
-map names;
+tree* tree_manager;
+map map_manager;
 
 int phelp_f();	// "_f" perchè altrimenti pclose è in conflitto con una funzione pclose sulle pipe
 int plist_f();
@@ -55,8 +55,11 @@ int string_equals( char* first , char* second);
 
 
 int main( int argc, char *argv[] ){
-	list_init(&children);
-	map_init(&names);
+	tree_init(&tree_manager);
+	tree* nmanager = tree_insert(&tree_manager,getpid(),"manager");
+
+	map_init(&map_manager);
+	map_add(&map_manager,nmanager->name,nmanager);
 	/**
 	 * 	Fase di lettura degli argomenti
 	*/
@@ -237,18 +240,9 @@ int phelp_f(){
 */
 int plist_f(){
 	printf("Chiamato plist\n");
-	if(list_empty(children))
-		printf("Manager non ha generato nessun processo\n");
-	else
-	{
-		printf("Manager ha generato i seguenti processi:\n");
-		list now = children;
-		while(now != NULL)
-		{
-			printf("\t%d\n", now->pid);
-			now = now->next;
-		}
-	}
+	printf("Stampo lista processi\n\n");
+	tree_print_list(tree_manager);
+	printf("\n");
 	return TRUE;
 }
 
@@ -258,18 +252,25 @@ int plist_f(){
 int pnew_f(char* name){
 	printf("Chiamato pnew con nome \"%s\"\n",name);
 	printf("Richiesta di creazione di un nuovo processo con nome \"%s\"\n", name);
-	int f = fork();
-	if(f < 0)
-		return FALSE;
-	else if(f == 0)
-	{
-		execv("./processo",NULL);
-		return FALSE;	//non dovrebbe mai essere eseguito
-	}
-	else
-	{
-		list_insert(&children, f);
-		map_add(&names, name, f);
+	if (map_lookup(map_manager,name) == NULL) {
+		//non esiste nsessun processo "nome".
+		int f = fork();
+		if(f < 0)
+			return FALSE;
+		else if(f == 0)
+		{
+			execv("./processo",NULL);
+			return FALSE;	//non dovrebbe mai essere eseguito
+		}
+		else
+		{
+			tree* added = tree_insert(&tree_manager,f,name);
+			map_add(&map_manager,name,added);
+			printf("Il processo \"%s\" e' stato creato con successo\n", name);
+		}
+	} else {
+		//il processo "nome" esiste gia'
+		printf("ERROR: il processo \"%s\" esiste gia'.\n", name);
 	}
 	return TRUE;
 }
@@ -279,6 +280,18 @@ int pnew_f(char* name){
 */
 int pinfo_f(char* name){
 	printf("Chiamato pinfo con nome \"%s\"\n",name);
+
+	tree* toprint = map_lookup(map_manager,name);
+	if (toprint != NULL) {
+		//stampo, il processo esiste
+		printf("Stampo le informazioni relative al processo \"%s\"\n\n",name);
+		tree_print_info(toprint);
+		printf("\n");
+	} else {
+		//non esiste il processo "nome"
+		printf("ERROR: il processo \"%s\" non esiste.\n", name);
+
+	}
 	return TRUE;
 }
 
@@ -311,7 +324,9 @@ int prmall_f(char* name){
 */
 int ptree_f(){
 	printf("Chiamato ptree\n");
-
+	printf("Stampo albero processi\n\n");
+	tree_print_tree(tree_manager);
+	printf("\n");
 	return TRUE;
 }
 

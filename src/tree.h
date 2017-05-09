@@ -38,9 +38,9 @@ int tree_empty(const tree *t);
 
 /*It creates a new node with the pid and the name passed
 and it assigns it as child of the tree passed. If the tree passed
-is empty the created node takes his place. 
+is empty the created node takes his place. returns a pointer to the new node
 */
-void tree_insert(tree **t, int pid, char* name);
+tree* tree_insert(tree **t, int pid, char* name);
 
 //It remove the tree node passed as argument from his parent and returns 1.
 //It the tree passed has children, nothing happens.

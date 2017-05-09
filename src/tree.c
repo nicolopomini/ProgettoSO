@@ -12,7 +12,7 @@ int tree_empty(const tree *t) {
 	return t == NULL;
 }
 
-void tree_insert(tree **t, int pid, char* name) {
+tree* tree_insert(tree **t, int pid, char* name) {
 	tree* add = (tree*) malloc(sizeof(tree));
 	add->pid = pid;
 
@@ -43,6 +43,7 @@ void tree_insert(tree **t, int pid, char* name) {
 		}
 
 	}
+	return add;
 }
 int tree_remove(tree *t) {
 	if (tree_empty(t->child)) {
