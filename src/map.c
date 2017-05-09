@@ -1,10 +1,11 @@
 #include "map.h"
+#include "tree.h"
 #include <stdlib.h>
 #include <string.h>
 
 const int MAP_STRING_MAX_LEN = 100;
 
-map map_lookup_getnode(map m, char *name)
+static map map_lookup_getnode(map m, char *name)
 {
 	map res;
 	if(m == NULL)
@@ -67,7 +68,7 @@ void map_init(map *m)
 {
 	*m = NULL;
 }
-int map_add(map *m, char *name, int pid)
+int map_add(map *m, char *name, tree* pid)
 {
 	int res, ret = 1;
 	if(*m != NULL)
@@ -90,10 +91,10 @@ int map_add(map *m, char *name, int pid)
 		ret = map_add(&(*m)->dx, name,pid);
 	return ret;
 }
-int map_lookup(map m, char *name)
+tree* map_lookup(map m, char *name)
 {
 	map tmp = map_lookup_getnode(m,name);
-	return tmp == NULL ? -1 : tmp->pid;
+	return tmp == NULL ? NULL : tmp->pid;
 }
 /*
 void printmap(map m)
