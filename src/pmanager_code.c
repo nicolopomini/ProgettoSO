@@ -287,18 +287,32 @@ int pinfo_f(char* name){
 		printf("Stampo le informazioni relative al processo \"%s\"\n\n",name);
 		tree_print_info(toprint);
 		printf("\n");
+		return TRUE;
 	} else {
 		//non esiste il processo "nome"
 		printf("ERROR: il processo \"%s\" non esiste.\n", name);
-
+		return FALSE;
 	}
-	return TRUE;
 }
 
 int pclose_f(char*name){
 	printf("Chiamato pclose con nome \"%s\"\n",name);
-
-	return TRUE;
+	
+	tree* toremove = map_lookup(map_manager,name);
+	if (toremove != NULL) {
+		//provo a rimuovere, il processo esiste
+		printf("Tentativo di rimozione del processo \"%s\"\n",name);
+		if (tree_remove(toremove) == 1){
+			printf("processo rimosso con successo\n");
+		} else {
+			printf("processo non rimosso\n");
+		}
+		return TRUE;
+	} else {
+		//il processo non esiste
+		printf("ERROR: il processo \"%s\" non esiste.\n", name);
+		return FALSE;
+	}
 }
 
 /**

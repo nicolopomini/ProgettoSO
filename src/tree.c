@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "tree.h"
 
@@ -47,25 +50,34 @@ tree* tree_insert(tree **t, int pid, char* name) {
 }
 int tree_remove(tree *t) {
 	if (tree_empty(t->child)) {
-		if (!tree_empty(t->parent)) {
-			//we can remove the node
-			//we have 2 situations: t is a child or t is a sibling (as in the insert)
-			if (t->parent->child == t) {
-				t->parent->child = t->sibling; 
-			} else {
-				tree* prec = t->parent->child;
-				while(prec->sibling != t) {
-					prec = prec->sibling;
-				}
-				prec->sibling = t->sibling;
-			}
+		if (kill(t->pid,SIGUSR1) == 0) {
+			int status;
+			waitpid(t->pid,&status,0);
 
-			free(t->name);
-			free(t);
-			return 1;
+			if (!tree_empty(t->parent)) {
+				//we can remove the node
+				//we have 2 situations: t is a child or t is a sibling (as in the insert)
+				if (t->parent->child == t) {
+					t->parent->child = t->sibling; 
+				} else {
+					tree* prec = t->parent->child;
+					while(prec->sibling != t) {
+						prec = prec->sibling;
+					}
+					prec->sibling = t->sibling;
+				}
+
+				free(t->name);
+				free(t);
+				return 1;
+			} else {
+				free(t->name);
+				free(t);
+				return 1;
+			}
 		} else {
-			free(t->name);
-			free(t);
+			//failed to remove, because the signal wasn't delivered in the correct way. 
+			return 0;
 		}
 	} else {
 		//failed to remove, because the node has children.
