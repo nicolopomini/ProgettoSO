@@ -23,9 +23,6 @@
 #include <unistd.h>
 #include "map.h"
 #include "tree.h"
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -34,7 +31,6 @@
 #define COMMAND_LENGTH 30
 
 char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
-char *pipe_name = "pspawn_pipe_SO2k17";
 
 tree* tree_manager;
 map map_manager;
@@ -189,7 +185,7 @@ int main( int argc, char *argv[] ){
 			case 7:{ //prmall
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
-					if(prmall_f(argumentReturn) == FALSE){
+					if(pspawn_f(argumentReturn) == FALSE){
 						fprintf(stderr, "%s", "ERROR in pspawn function\n");
 						return 1;
 					}
@@ -272,11 +268,12 @@ int pnew_f(char* name){
 			map_add(&map_manager,name,added);
 			printf("Il processo \"%s\" e' stato creato con successo\n", name);
 		}
+		return TRUE;
 	} else {
 		//il processo "nome" esiste gia'
 		printf("ERROR: il processo \"%s\" esiste gia'.\n", name);
+		return FALSE;
 	}
-	return TRUE;
 }
 
 /**
@@ -324,40 +321,7 @@ int pclose_f(char*name){
 */
 int pspawn_f(char* name){
 	printf("Chiamato pspawn con nome \"%s\"\n",name);
-	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
-	{
-		fprintf(stderr, "Errore, non si può clonare il manager\n");
-		return ERROR;
-	}
-	tree *toclone = map_lookup(map_manager,name);
-	if(toclone == NULL) //non esiste
-	{
-		fprintf(stderr, "Il processo %s non esiste\n", name);
-		return ERROR;
-	}
-	else
-	{
-		printf("Richiesta di clonazione inviata al processo \"%s\"\n", name);
-		int figli = tree_getNumberOfChildren(toclone);
-		char tmp[10];
-		sprintf(tmp, "%d", figli);
-		strcat(name, "_");
-		strcat(name,tmp);
-		//printf("Nuovo nome: %s\n", name);
 
-		kill(toclone->pid, SIGUSR2);
-		//pipe time!
-		int fd = open(pipe_name, O_RDONLY);
-		read(fd,tmp,10);
-		close(fd);
-		unlink(pipe_name);
-		//end pipe
-		int newpid = (int)strtol(tmp,NULL,2);
-		printf("%d\n", newpid);
-		tree *added = tree_insert(&toclone,newpid,name);
-		map_add(&map_manager,name,added);
-		printf("Clonazione avvenuta, processo %d generato\n", newpid);
-	}
 	return TRUE;
 }
 
@@ -366,8 +330,19 @@ int pspawn_f(char* name){
 */
 int prmall_f(char* name){
 	printf("Chiamato prmall con nome \"%s\"\n",name);
-
-	return TRUE;
+	
+	tree* todelete = map_lookup(map_manager,name);
+	if (todelte != NULL) {
+		//provo a rimuovere, il processo esiste
+		printf("Tentativo di rimozione del processo \"%s\" e dei suoi figli\n",name);
+		tree_delete(todelete);
+		printf("processo e figli rimossi con successo\n");
+		return TRUE;
+	} else {
+		//il processo non esiste
+		printf("ERROR: il processo \"%s\" non esiste.\n", name);
+		return FALSE;
+	}
 }
 
 /**
