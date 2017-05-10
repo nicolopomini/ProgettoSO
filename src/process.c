@@ -35,6 +35,7 @@ void clone(int signal)
 int main(){
 	signal(SIGUSR1,handler_sigusr1);
 	signal(SIGUSR2,clone);
+	printf("Processo %d avviato\n", getpid());
 	while(pause() == -1);
 	return 0;
 }
