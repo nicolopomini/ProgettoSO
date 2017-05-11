@@ -23,7 +23,7 @@ static map map_lookup_getnode(map m, char *name)
 	return res;
 }
 
-void map_delete(map *m, char *name)
+void map_remove(map *m, char *name)
 {
 	if(*m != NULL)
 	{
@@ -37,7 +37,7 @@ void map_delete(map *m, char *name)
 					min = min->sx;
 				(*m)->pid = min->pid;
 				strcpy((*m)->name,min->name);
-				map_delete(&(*m)->dx,(*m)->name);
+				map_remove(&(*m)->dx,(*m)->name);
 			}
 			else if((*m)->sx == NULL && (*m)->dx != NULL)
 			{
@@ -58,9 +58,9 @@ void map_delete(map *m, char *name)
 			}
 		}
 		else if(cmp < 0)
-			map_delete(&(*m)->sx,name);
+			map_remove(&(*m)->sx,name);
 		else
-			map_delete(&(*m)->dx,name);
+			map_remove(&(*m)->dx,name);
 	}
 }
 
@@ -115,7 +115,7 @@ int main()
 	map_add(&m,c,12);
 	map_add(&m,a,123);
 	printmap(m);
-	map_delete(&m,b);
+	map_remove(&m,b);
 	printf("%d\n", map_lookup(m,a));
 	printmap(m);
 	//printf("%d\n", strcmp(a,b));

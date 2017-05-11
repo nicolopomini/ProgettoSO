@@ -15,6 +15,6 @@ struct node_t
 void map_init(map *m);
 int map_add(map *m, char *name, tree* pid);  //0 se gia' presente
 tree* map_lookup(map m, char *name);	//NULL se non trovato
-void map_delete(map *m, char *name);
+void map_remove(map *m, char *name);
 
 #endif

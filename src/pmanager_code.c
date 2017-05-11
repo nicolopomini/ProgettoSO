@@ -187,8 +187,8 @@ int main( int argc, char *argv[] ){
 			case 7:{ //prmall
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
-					if(pspawn_f(argumentReturn) == FALSE){
-						fprintf(stderr, "%s", "ERROR in pspawn function\n");
+					if(prmall_f(argumentReturn) == FALSE){
+						fprintf(stderr, "%s", "ERROR in prmall function\n");
 						return 1;
 					}
 				}
@@ -306,6 +306,7 @@ int pclose_f(char*name){
 		//provo a rimuovere, il processo esiste
 		printf("Tentativo di rimozione del processo \"%s\"\n",name);
 		if (tree_remove(toremove) == 1){
+			map_remove(&map_manager,name);
 			printf("processo rimosso con successo\n");
 		} else {
 			printf("processo non rimosso\n");
