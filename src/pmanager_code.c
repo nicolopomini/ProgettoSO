@@ -54,7 +54,7 @@ int checkInput(int arguments_number, int command_num, char * token, char* argume
 void all_lowercase(char* word);
 int string_equals( char* first , char* second);
 
-
+void overridden_tree_delete(tree **t);
 
 int main( int argc, char *argv[] ){
 	tree_init(&tree_manager);
@@ -378,7 +378,7 @@ int prmall_f(char* name){
 	if (todelete != NULL) {
 		//provo a rimuovere, il processo esiste
 		printf("Tentativo di rimozione del processo \"%s\" e dei suoi figli\n",name);
-		tree_delete(&todelete);
+		overridden_tree_delete(&todelete);
 		printf("processo e figli rimossi con successo\n");
 		return TRUE;
 	} else {
@@ -469,3 +469,20 @@ int string_equals( char* first , char* second){
 			if(first[i] != second[i]) return FALSE;
 	return TRUE;
 }
+
+void overridden_tree_delete(tree **t) {
+	/*recursively call the delete on all the children of the node.
+	the when a node has no children remove it. There is no need to 
+	search all the siblings because as you delete the child of a node,
+	the siblings takes it place. (I love this function, is really magical)
+	*/
+	while (!tree_empty((*t)->child)) {
+		overridden_tree_delete(&(*t)->child);
+	}
+
+	map_remove(&map_manager,(*t)->name);
+	//printf("\t\tremoving %d\n", (*t)->pid);
+	tree_remove(*t);
+}
+
+
