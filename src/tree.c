@@ -85,7 +85,7 @@ int tree_remove(tree *t) {
 	}
 }
 
-void tree_delete(tree **t,char **) {
+void tree_delete(tree **t) {
 	/*recursively call the delete on all the children of the node.
 	the when a node has no children remove it. There is no need to 
 	search all the siblings because as you delete the child of a node,
