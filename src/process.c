@@ -3,9 +3,6 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-char *pipe_name = "pspawn_pipe_SO2k17";
 void handler_sigusr1(int signal) {
 	kill(getpid(),SIGKILL);
 }
@@ -21,15 +18,17 @@ void clone(int signal)
 	{
 		printf("Processo %d avviato\n", getpid());
 	}
-	else
+	else //padre
 	{
-		char tosend[10];
+		char tosend[10], pipe_name[10];
 		sprintf(tosend, "%d", f);
-		mkfifo(pipe_name, 0666);
-		int fd = open(pipe_name, O_WRONLY);
-		write(fd,tosend,10);
+		sprintf(pipe_name, "%d", getpid());
+		int fd;
+		do{
+		fd = open(pipe_name, O_WRONLY);
+		}while(fd == -1);
+		write(fd, tosend, sizeof(tosend));
 		close(fd);
-		unlink(pipe_name);
 	}
 }
 int main(){

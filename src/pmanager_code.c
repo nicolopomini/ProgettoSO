@@ -23,6 +23,9 @@
 #include <unistd.h>
 #include "map.h"
 #include "tree.h"
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -31,7 +34,6 @@
 #define COMMAND_LENGTH 30
 
 char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
-
 tree* tree_manager;
 map map_manager;
 
@@ -320,10 +322,50 @@ int pclose_f(char*name){
  *
 */
 int pspawn_f(char* name){
-	printf("Chiamato pspawn con nome \"%s\"\n",name);
-
-	return TRUE;
-}
+  	printf("Chiamato pspawn con nome \"%s\"\n",name);
+ 
+ 	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
+ 	{
+ 		fprintf(stderr, "Errore, non si può clonare il manager\n");
+ 		return ERROR;
+ 	}
+ 	tree *toclone = map_lookup(map_manager,name);
+ 	if(toclone == NULL) //non esiste
+ 	{
+ 		fprintf(stderr, "Il processo %s non esiste\n", name);
+ 		return ERROR;
+ 	}
+ 	else
+ 	{
+ 		char *newname = malloc(sizeof(char)*30);
+ 		strcpy(newname,name);
+ 		int figli = tree_getNumberOfChildren(toclone);
+ 		char tmp[10];
+ 		sprintf(tmp, "%d", figli);
+ 		strcat(newname, "_");
+ 		strcat(newname,tmp);
+ 		sprintf(tmp, "%d", toclone->pid); //ora tmp contiene il nome della pipe, ovvero il pid del padre
+ 		mknod(tmp,S_IFIFO,0);
+ 		chmod(tmp,0660);
+ 		printf("Invio segnale\n");
+ 		kill(toclone->pid, SIGUSR2);
+ 		printf("Segnale inviato\n");
+ 		int fd;
+ 		do{
+ 			fd = open(tmp, O_RDONLY);
+ 		}while(fd == -1);
+ 		char fromchild[10];
+ 		read(fd, fromchild, sizeof(fromchild));
+ 		close(fd);
+ 		unlink(tmp);
+ 		printf("Letto %s\n", fromchild);
+ 		int newpid;
+ 		sscanf(fromchild, "%d", &newpid);
+ 		tree *insered = tree_insert(&toclone,newpid,newname);
+ 		map_add(&map_manager,newname,insered);
+ 	}
+  	return TRUE;
+  }
 
 /**
  *
@@ -332,10 +374,10 @@ int prmall_f(char* name){
 	printf("Chiamato prmall con nome \"%s\"\n",name);
 	
 	tree* todelete = map_lookup(map_manager,name);
-	if (todelte != NULL) {
+	if (todelete != NULL) {
 		//provo a rimuovere, il processo esiste
 		printf("Tentativo di rimozione del processo \"%s\" e dei suoi figli\n",name);
-		tree_delete(todelete);
+		tree_delete(&todelete);
 		printf("processo e figli rimossi con successo\n");
 		return TRUE;
 	} else {
