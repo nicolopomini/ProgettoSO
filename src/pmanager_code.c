@@ -261,7 +261,8 @@ int pnew_f(char* name){
 			return FALSE;
 		else if(f == 0)
 		{
-			execv("./processo",NULL);
+			char *const parmList[] = {NULL};
+			execv("./processo",parmList);
 			return FALSE;	//non dovrebbe mai essere eseguito
 		}
 		else
