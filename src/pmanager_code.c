@@ -116,10 +116,9 @@ int main( int argc, char *argv[] ){
 			if (string_equals(token,commands[j]) == TRUE)
 				command_num = j;	//Per ogni comando, se la stringa è uguale ad esso, command num viene impostato all'indice di command[]
 		if(string_equals(token,"space"))
-			command_num = -1;
+			command_num = 9; //SPACE command
 
 		switch(command_num){
-			case -1:break;	//spazio
 			case 0:{ //phelp
 				if(checkInput(0,command_num,token,NULL)){
 					if(phelp_f() == FALSE){
@@ -203,14 +202,18 @@ int main( int argc, char *argv[] ){
 				}
 				break;
 			}
-			case 9:{ //Si potrebbe aggiungere qualcosa
-				break;
-			}
+			case 9:break;	//spazio
 			default:{
-				printf("\nStringa non valida,reinserire.\nPer ulteriori informazioni sull' utilizzo di questo programma digitare phelp\n");
+				printf("Stringa non valida,reinserire.\nPer ulteriori informazioni sull' utilizzo di questo programma digitare phelp\n");
 				break;
 			}
 		}
+
+		//reset dei dati di lettura parziali
+		strcpy(token,"");
+		strcpy(command,"");
+		command_num = -1;
+
 	}while(1);
 	return 0;
 }
@@ -221,7 +224,7 @@ int main( int argc, char *argv[] ){
 
 int phelp_f(){
 
-	printf("\n\nPMANAGER 0.0.1\n");
+	printf("\nPMANAGER 0.0.1\n");
 	printf("Usage: command [parameters]\n");
 	printf("quit​ : esce dalla shell custom\n"
 		"phelp: stampa questa guida\n"
@@ -252,7 +255,6 @@ int plist_f(){
  *
 */
 int pnew_f(char* name){
-	printf("Chiamato pnew con nome \"%s\"\n",name);
 	printf("Richiesta di creazione di un nuovo processo con nome \"%s\"\n", name);
 	if (map_lookup(map_manager,name) == NULL) {
 		//non esiste nsessun processo "nome".
@@ -261,7 +263,7 @@ int pnew_f(char* name){
 			return FALSE;
 		else if(f == 0)
 		{
-			char *const parmList[] = {NULL};
+			char *const parmList[] = {"processo",NULL};
 			execv("./processo",parmList);
 			return FALSE;	//non dovrebbe mai essere eseguito
 		}
@@ -271,11 +273,13 @@ int pnew_f(char* name){
 			map_add(&map_manager,name,added);
 			printf("Il processo \"%s\" e' stato creato con successo\n", name);
 		}
+
+
 		return TRUE;
 	} else {
 		//il processo "nome" esiste gia'
 		printf("ERROR: il processo \"%s\" esiste gia'.\n", name);
-		return FALSE;
+		return TRUE; //in questo caso si ritorna true perchè l'errore NON DEVE ESSERE BLOCCANTE ed è già stato segnalato sopra
 	}
 }
 
@@ -299,9 +303,12 @@ int pinfo_f(char* name){
 	}
 }
 
+/**
+ *
+*/
 int pclose_f(char*name){
 	printf("Chiamato pclose con nome \"%s\"\n",name);
-	
+
 	tree* toremove = map_lookup(map_manager,name);
 	if (toremove != NULL) {
 		//provo a rimuovere, il processo esiste
@@ -325,7 +332,7 @@ int pclose_f(char*name){
 */
 int pspawn_f(char* name){
   	printf("Chiamato pspawn con nome \"%s\"\n",name);
- 
+
  	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
  		fprintf(stderr, "Errore, non si può clonare il manager\n");
@@ -374,7 +381,7 @@ int pspawn_f(char* name){
 */
 int prmall_f(char* name){
 	printf("Chiamato prmall con nome \"%s\"\n",name);
-	
+
 	tree* todelete = map_lookup(map_manager,name);
 	if (todelete != NULL) {
 		//provo a rimuovere, il processo esiste
@@ -473,7 +480,7 @@ int string_equals( char* first , char* second){
 
 void overridden_tree_delete(tree **t) {
 	/*recursively call the delete on all the children of the node.
-	the when a node has no children remove it. There is no need to 
+	the when a node has no children remove it. There is no need to
 	search all the siblings because as you delete the child of a node,
 	the siblings takes it place. (I love this function, is really magical)
 	*/
@@ -485,5 +492,3 @@ void overridden_tree_delete(tree **t) {
 	//printf("\t\tremoving %d\n", (*t)->pid);
 	tree_remove(*t);
 }
-
-
