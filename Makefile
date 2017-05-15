@@ -19,13 +19,17 @@ clean:
 
 #Build: compila in maniera corretta il codice sorgente del processo
 build: src/*.c src/*.h
-	$(MAKE) clean;
+	@ $(MAKE) clean;
 	@ mkdir build; cd build; gcc -o processo $(SOURCEPROCESSBUILDPATH); gcc -o pmanager $(SOURCECODEBUILDPATH);
+	@ echo Eseguire il programma con il comando "make run";
 
 assets:
-	$(MAKE) build
+	@ $(MAKE) build
 	@ mkdir assets;
 
 test:
-	$(MAKE) assets
+	@ $(MAKE) assets
 	@ echo Test mode is under developement
+
+run:
+	@ cd build; ./pmanager;
