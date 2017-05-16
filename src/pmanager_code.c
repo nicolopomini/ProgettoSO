@@ -356,9 +356,8 @@ int pspawn_f(char* name){
  		sprintf(tmp, "%d", toclone->pid); //ora tmp contiene il nome della pipe, ovvero il pid del padre
  		mknod(tmp,S_IFIFO,0);
  		chmod(tmp,0660);
- 		printf("Invio segnale\n");
  		kill(toclone->pid, SIGUSR2);
- 		printf("Segnale inviato\n");
+ 		printf("Richiesta di clonazione inviata al processo %s\n", name);
  		int fd;
  		do{
  			fd = open(tmp, O_RDONLY);
@@ -367,7 +366,6 @@ int pspawn_f(char* name){
  		read(fd, fromchild, sizeof(fromchild));
  		close(fd);
  		unlink(tmp);
- 		printf("Letto %s\n", fromchild);
  		int newpid;
  		sscanf(fromchild, "%d", &newpid);
  		tree *insered = tree_insert(&toclone,newpid,newname);

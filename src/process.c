@@ -29,6 +29,7 @@ void clone(int signal)
 		}while(fd == -1);
 		write(fd, tosend, sizeof(tosend));
 		close(fd);
+		printf("Clonazione avvenuta: processo %d generato\n", f);
 	}
 }
 int main(){
