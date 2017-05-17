@@ -263,7 +263,9 @@ int pnew_f(char* name){
 			return FALSE;
 		else if(f == 0)
 		{
-			char *const parmList[] = {"processo",NULL};
+            char pidmanager[10];
+            sprintf(pidmanager, "%d", getpid());
+			char *const parmList[] = {"processo",pidmanager,NULL};
 			execv("./processo",parmList);
 			return FALSE;	//non dovrebbe mai essere eseguito
 		}
@@ -356,20 +358,32 @@ int pspawn_f(char* name){
  		sprintf(tmp, "%d", toclone->pid); //ora tmp contiene il nome della pipe, ovvero il pid del padre
  		mknod(tmp,S_IFIFO,0);
  		chmod(tmp,0660);
- 		kill(toclone->pid, SIGUSR2);
- 		printf("Richiesta di clonazione inviata al processo %s\n", name);
- 		int fd;
- 		do{
- 			fd = open(tmp, O_RDONLY);
- 		}while(fd == -1);
- 		char fromchild[10];
- 		read(fd, fromchild, sizeof(fromchild));
- 		close(fd);
- 		unlink(tmp);
- 		int newpid;
- 		sscanf(fromchild, "%d", &newpid);
- 		tree *insered = tree_insert(&toclone,newpid,newname);
- 		map_add(&map_manager,newname,insered);
+ 		int k = kill(toclone->pid, SIGUSR2);
+        if(k == -1) //errore nel kill
+        {
+            fprintf(stderr, "Errore di comunicazione con il processo %s [%d]\n", name, toclone->pid);
+            return ERROR;
+        }
+        else
+        {
+            printf("Richiesta di clonazione inviata al processo %s\n", name);
+            int fd;
+            do{
+                fd = open(tmp, O_RDONLY);
+            }while(fd == -1);
+            char fromchild[10];
+            if(read(fd, fromchild, sizeof(fromchild)) == -1)
+            {
+                fprintf(stderr, "Errore di comunicazione con il processo %s [%d]\n", name, toclone->pid);
+                return ERROR;
+            }
+            close(fd);
+            unlink(tmp);
+            int newpid;
+            sscanf(fromchild, "%d", &newpid);
+            tree *insered = tree_insert(&toclone,newpid,newname);
+            map_add(&map_manager,newname,insered);
+        }
  	}
   	return TRUE;
   }
