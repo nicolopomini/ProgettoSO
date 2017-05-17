@@ -45,7 +45,7 @@ int pclose_f(char* name);
 int pspawn_f(char* name);
 int prmall_f(char* name);
 int ptree_f();
-
+void quit_f();
 
 /**
  *	Funzioni gestione stringhe
@@ -130,6 +130,8 @@ int main( int argc, char *argv[] ){
 			}
 			case 1:{ //quit
 				if(checkInput(0,command_num,token,NULL)){
+                    quit_f();
+                    //plist_f();    //just to debug
 					return 0;
 				}
 				break;
@@ -250,7 +252,18 @@ int plist_f(){
 	printf("\n");
 	return TRUE;
 }
-
+void quit_f()
+{
+    int children = tree_getNumberOfChildren(tree_manager);
+    tree *t = tree_manager->child;
+    tree *tmp;
+    for(int i = 0; i < children; i++)
+    {
+        tmp = t;
+        t = t->sibling;
+        overridden_tree_delete(&tmp);
+    }
+}
 /**
  *
 */
@@ -338,13 +351,13 @@ int pspawn_f(char* name){
  	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
  		fprintf(stderr, "Errore, non si può clonare il manager\n");
- 		return ERROR;
+ 		return FALSE;
  	}
  	tree *toclone = map_lookup(map_manager,name);
  	if(toclone == NULL) //non esiste
  	{
  		fprintf(stderr, "Il processo %s non esiste\n", name);
- 		return ERROR;
+ 		return FALSE;
  	}
  	else
  	{
@@ -362,7 +375,7 @@ int pspawn_f(char* name){
         if(k == -1) //errore nel kill
         {
             fprintf(stderr, "Errore di comunicazione con il processo %s [%d]\n", name, toclone->pid);
-            return ERROR;
+            return FALSE;
         }
         else
         {
@@ -375,7 +388,7 @@ int pspawn_f(char* name){
             if(read(fd, fromchild, sizeof(fromchild)) == -1)
             {
                 fprintf(stderr, "Errore di comunicazione con il processo %s [%d]\n", name, toclone->pid);
-                return ERROR;
+                return FALSE;
             }
             close(fd);
             unlink(tmp);
