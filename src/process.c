@@ -32,9 +32,13 @@ void clone(int signal)
 		printf("Clonazione avvenuta: processo %d generato\n", f);
 	}
 }
-int main(){
+void external_close(int sig)
+{}
+int main(int argc, char *argv[]){
 	signal(SIGUSR1,handler_sigusr1);
 	signal(SIGUSR2,clone);
+    signal(SIGTERM,external_close);
+    signal(SIGINT,external_close);
 	printf("Processo %d avviato\n", getpid());
 	while(pause() == -1);
 	return 0;
