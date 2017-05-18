@@ -269,11 +269,19 @@ void quit_f()
 */
 int pnew_f(char* name){
 	printf("Richiesta di creazione di un nuovo processo con nome \"%s\"\n", name);
+	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
+ 	{
+ 		fprintf(stderr, "Errore, un nuovo processo non può avere il nome del manager\n");
+ 		return TRUE;
+ 	}
 	if (map_lookup(map_manager,name) == NULL) {
 		//non esiste nsessun processo "nome".
 		int f = fork();
 		if(f < 0)
+		{
+			fprintf(stderr, "Errore nella clonazione\n");
 			return FALSE;
+		}
 		else if(f == 0)
 		{
             char pidmanager[10];
@@ -314,7 +322,7 @@ int pinfo_f(char* name){
 	} else {
 		//non esiste il processo "nome"
 		printf("ERROR: il processo \"%s\" non esiste.\n", name);
-		return FALSE;
+		return TRUE;
 	}
 }
 
@@ -326,7 +334,7 @@ int pclose_f(char*name){
 	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
  		fprintf(stderr, "Errore, per chiudere il processo manager utilizzare il comando \"quit\"\n");
- 		return FALSE;
+ 		return TRUE;
  	}
 	tree* toremove = map_lookup(map_manager,name);
 	if (toremove != NULL) {
@@ -342,7 +350,7 @@ int pclose_f(char*name){
 	} else {
 		//il processo non esiste
 		printf("ERROR: il processo \"%s\" non esiste.\n", name);
-		return FALSE;
+		return TRUE;
 	}
 }
 
@@ -355,13 +363,13 @@ int pspawn_f(char* name){
  	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
  		fprintf(stderr, "Errore, non si può clonare il manager\n");
- 		return FALSE;
+ 		return TRUE;
  	}
  	tree *toclone = map_lookup(map_manager,name);
  	if(toclone == NULL) //non esiste
  	{
  		fprintf(stderr, "Il processo %s non esiste\n", name);
- 		return FALSE;
+ 		return TRUE;
  	}
  	else
  	{
@@ -410,7 +418,11 @@ int pspawn_f(char* name){
 */
 int prmall_f(char* name){
 	printf("Chiamato prmall con nome \"%s\"\n",name);
-
+	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
+ 	{
+ 		fprintf(stderr, "Errore, per chiudere il processo manager e rimuovere tutti i processi utilizzare il comando \"quit\"\n");
+ 		return TRUE;
+ 	}
 	tree* todelete = map_lookup(map_manager,name);
 	if (todelete != NULL) {
 		//provo a rimuovere, il processo esiste
@@ -421,7 +433,7 @@ int prmall_f(char* name){
 	} else {
 		//il processo non esiste
 		printf("ERROR: il processo \"%s\" non esiste.\n", name);
-		return FALSE;
+		return TRUE;
 	}
 }
 
