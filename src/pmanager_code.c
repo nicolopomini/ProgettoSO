@@ -323,7 +323,11 @@ int pinfo_f(char* name){
 */
 int pclose_f(char*name){
 	printf("Chiamato pclose con nome \"%s\"\n",name);
-
+	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
+ 	{
+ 		fprintf(stderr, "Errore, per chiudere il processo manager utilizzare il comando \"quit\"\n");
+ 		return FALSE;
+ 	}
 	tree* toremove = map_lookup(map_manager,name);
 	if (toremove != NULL) {
 		//provo a rimuovere, il processo esiste
