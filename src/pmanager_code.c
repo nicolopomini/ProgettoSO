@@ -36,6 +36,7 @@
 char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
 tree* tree_manager;
 map map_manager;
+int sync_flag = 0;
 
 int phelp_f();	// "_f" perchè altrimenti pclose è in conflitto con una funzione pclose sulle pipe
 int plist_f();
@@ -55,8 +56,10 @@ void all_lowercase(char* word);
 int string_equals( char* first , char* second);
 
 void overridden_tree_delete(tree **t);
+void sync_handler(int sig);
 
 int main( int argc, char *argv[] ){
+	signal(SIGUSR1,sync_handler);
 	tree_init(&tree_manager);
 	tree* nmanager = tree_insert(&tree_manager,getpid(),"manager");
 
@@ -275,19 +278,19 @@ int pnew_f(char* name){
  		return TRUE;
  	}
 	if (map_lookup(map_manager,name) == NULL) {
-		//non esiste nsessun processo "nome".
+		sync_flag = 1;
 		int f = fork();
 		if(f < 0)
 		{
 			fprintf(stderr, "Errore nella clonazione\n");
+			sync_flag = 0;
 			return FALSE;
 		}
 		else if(f == 0)
 		{
-            char pidmanager[10];
-            sprintf(pidmanager, "%d", getpid());
-			char *const parmList[] = {"processo",pidmanager,NULL};
+			char *const parmList[] = {"processo",NULL};
 			execv("./processo",parmList);
+			sync_flag = 0;
 			return FALSE;	//non dovrebbe mai essere eseguito
 		}
 		else
@@ -295,6 +298,8 @@ int pnew_f(char* name){
 			tree* added = tree_insert(&tree_manager,f,name);
 			map_add(&map_manager,name,added);
 			printf("Il processo \"%s\" e' stato creato con successo\n", name);
+			while(sync_flag != 0)
+				pause();
 		}
 
 
@@ -373,6 +378,7 @@ int pspawn_f(char* name){
  	}
  	else
  	{
+ 		sync_flag = 2;
  		char *newname = malloc(sizeof(char)*30);
  		strcpy(newname,name);
  		int figli = tree_getNumberOfChildren(toclone);
@@ -387,6 +393,7 @@ int pspawn_f(char* name){
         if(k == -1) //errore nel kill
         {
             fprintf(stderr, "Errore di comunicazione con il processo %s [%d]\n", name, toclone->pid);
+            sync_flag = 0;
             return FALSE;
         }
         else
@@ -400,6 +407,7 @@ int pspawn_f(char* name){
             if(read(fd, fromchild, sizeof(fromchild)) == -1)
             {
                 fprintf(stderr, "Errore di comunicazione con il processo %s [%d]\n", name, toclone->pid);
+                sync_flag = 0;
                 return FALSE;
             }
             close(fd);
@@ -408,6 +416,8 @@ int pspawn_f(char* name){
             sscanf(fromchild, "%d", &newpid);
             tree *insered = tree_insert(&toclone,newpid,newname);
             map_add(&map_manager,newname,insered);
+            while(sync_flag != 0)
+				pause();
         }
  	}
   	return TRUE;
@@ -532,4 +542,8 @@ void overridden_tree_delete(tree **t) {
 	map_remove(&map_manager,(*t)->name);
 	//printf("\t\tremoving %d\n", (*t)->pid);
 	tree_remove(*t);
+}
+void sync_handler(int sig)
+{
+	sync_flag--;
 }

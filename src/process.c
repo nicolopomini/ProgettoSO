@@ -3,6 +3,8 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+int pid_manager;
 void handler_sigusr1(int signal) {
 	kill(getpid(),SIGKILL);
 }
@@ -17,6 +19,8 @@ void clone(int signal)
 	else if(f == 0)
 	{
 		printf("Processo %d avviato\n", getpid());
+		kill(pid_manager,SIGUSR1);
+
 	}
 	else //padre
 	{
@@ -30,6 +34,7 @@ void clone(int signal)
 		write(fd, tosend, sizeof(tosend));
 		close(fd);
 		printf("Clonazione avvenuta: processo %d generato\n", f);
+		kill(pid_manager,SIGUSR1);
 	}
 }
 void external_close(int sig)
@@ -39,7 +44,9 @@ int main(int argc, char *argv[]){
 	signal(SIGUSR2,clone);
     signal(SIGTERM,external_close);
     signal(SIGINT,external_close);
+    pid_manager = getppid();
 	printf("Processo %d avviato\n", getpid());
+	kill(pid_manager,SIGUSR1);
 	while(pause() == -1);
 	return 0;
 }
