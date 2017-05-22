@@ -231,15 +231,15 @@ int phelp_f(){
 
 	printf("\nPMANAGER 0.0.1\n");
 	printf("Usage: command [parameters]\n");
-	printf("quit​ : esce dalla shell custom\n"
-		"phelp: stampa questa guida\n"
-	"plist: elenca i processi generati da questo programma\n"
-		"pnew <nome>: crea un nuovo processo con nome <nome>\n"
-		"pinfo <nome>​ : fornisce informazioni sul processo <nome>\n"
-	"pclose <nome>​ : chiede al processo <nome> di chiudersi\n"
-	"pspawn <nome> : chiede al processo <nome> di clonarsi creando <nome_i> con i progressivo\n"
-	"prmall <nome> : chiedi al processo <nome> di chiudersi chiudendo anche eventuali cloni\n"
-	"ptree : mostra la gerarchia completa dei processi generati attivi \n\n");
+	printf( "quit​ : esce dalla shell custom\n"
+			"phelp: stampa questa guida\n"
+			"plist: elenca i processi generati da questo programma\n"
+			"pnew <nome>: crea un nuovo processo con nome <nome>\n"
+			"pinfo <nome>​ : fornisce informazioni sul processo <nome>\n"
+			"pclose <nome>​ : chiede al processo <nome> di chiudersi\n"
+			"pspawn <nome> : chiede al processo <nome> di clonarsi creando <nome_i> con i progressivo\n"
+			"prmall <nome> : chiedi al processo <nome> di chiudersi chiudendo anche eventuali cloni\n"
+			"ptree : mostra la gerarchia completa dei processi generati attivi \n\n");
 	return TRUE;
 }
 
