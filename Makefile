@@ -28,7 +28,7 @@ clean:
 #Build: compila in maniera corretta il codice sorgente del processo
 build: src/*.c src/*.h
 	@ $(MAKE) clean;
-	@ mkdir build; cd build; gcc -o processo $(SOURCEPROCESSBUILDPATH); gcc -o pmanager $(SOURCECODEBUILDPATH);
+	@ mkdir build; cd build; mkdir fifo; gcc -o processo $(SOURCEPROCESSBUILDPATH); gcc -o pmanager $(SOURCECODEBUILDPATH);
 	@ echo Eseguire il programma con il comando "make run";
 
 assets:
