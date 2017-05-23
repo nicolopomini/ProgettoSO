@@ -13,6 +13,7 @@ typedef struct tree_n{
 	int pid;
 	char* name;
 	int depth;
+	int child_number;
 	
 	//tree references
 	tree* parent;
@@ -24,11 +25,11 @@ typedef struct tree_n{
 All the operation performed by a queue are not implemented, so here we 
 have just a list implemented, which is however treated and used like a queue.
 */
-typedef struct list_n queue;
+typedef struct list_n list;
 typedef struct list_n {
 	tree* element;
-	queue* next;
-} queue;
+	list* next;
+} list;
 
 //initialize the tree.
 void tree_init(tree **t);

@@ -381,7 +381,7 @@ int pspawn_f(char* name){
  		sync_flag = 2;
  		char *newname = malloc(sizeof(char)*30);
  		strcpy(newname,name);
- 		int figli = tree_getNumberOfChildren(toclone);
+ 		int figli = toclone->child_number;
  		char tmp[10];
  		sprintf(tmp, "%d", figli);
  		strcat(newname, "_");

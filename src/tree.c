@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdarg.h>
 
 #include "tree.h"
 
@@ -18,6 +19,7 @@ int tree_empty(const tree *t) {
 tree* tree_insert(tree **t, int pid, char* name) {
 	tree* add = (tree*) malloc(sizeof(tree));
 	add->pid = pid;
+	add->child_number = 0;
 
 	int len = strlen(name);
 	add->name = (char*) malloc(sizeof(char)*(len+1));
@@ -44,6 +46,7 @@ tree* tree_insert(tree **t, int pid, char* name) {
 				tmp = tmp->sibling;
 			tmp->sibling = add;
 		}
+		(*t)->child_number++;
 
 	}
 	return add;
@@ -136,9 +139,14 @@ void printCustomTree(tree *t, int first, int last) {
 		printCustomTree(tmp,0,1);
 }
 
+void printNewTree(tree *t) {
+	
+}
+
 //the wrapper of the recursive function
 void tree_print_tree(tree* t) {
-	printCustomTree(t,1,1);
+	//printCustomTree(t,1,1);
+	
 }
 
 //Prints in a really cool way some info on the tree node passed
@@ -170,7 +178,7 @@ void tree_print_info(tree* t) {
 //Prints in another really cool way the structure of the tree, with all
 //the node divided by their tree level.
 void tree_print_list(tree* t) {
-	queue *q = (queue*) malloc(sizeof(queue));
+	list *q = (list*) malloc(sizeof(list));
 	q->element = t;
 	q->next = NULL;
 	int last_depth = t->depth;
@@ -179,13 +187,13 @@ void tree_print_list(tree* t) {
 		tree* tmp = q->element;
 
 		tree* tmp_insert = tmp->child;
-		queue* tmpq = q;
+		list* tmpq = q;
 
 		while (tmp_insert != NULL) {
 			while(tmpq->next != NULL)
 				tmpq = tmpq->next;
 
-			tmpq->next = (queue*) malloc(sizeof(queue));
+			tmpq->next = (list*) malloc(sizeof(list));
 			tmpq->next->element = tmp_insert;
 			tmpq->next->next = NULL;
 
@@ -210,7 +218,7 @@ void tree_print_list(tree* t) {
 
 		printf("Process: %s - ID: %d.\n", tmp->name, tmp->pid);
 		
-		queue* n = q->next;
+		list* n = q->next;
 		free(q);
 		q = n;
 	}
