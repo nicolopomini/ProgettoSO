@@ -37,6 +37,7 @@ char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prma
 tree* tree_manager;
 map map_manager;
 int sync_flag = 0;
+const char fifo_name[] = "fifo/FIFO_SO_PROJECT";
 
 int phelp_f();	// "_f" perchè altrimenti pclose è in conflitto con una funzione pclose sulle pipe
 int plist_f();
@@ -65,6 +66,9 @@ int main( int argc, char *argv[] ){
 
 	map_init(&map_manager);
 	map_add(&map_manager,nmanager->name,nmanager);
+	//apro fifo per spawn
+	mknod(fifo_name,S_IFIFO,0);
+ 	chmod(fifo_name,0660);
 	/**
 	 * 	Fase di lettura degli argomenti
 	*/
@@ -266,6 +270,7 @@ void quit_f()
         t = t->sibling;
         overridden_tree_delete(&tmp);
     }
+    unlink(fifo_name);
 }
 /**
  *
@@ -386,9 +391,6 @@ int pspawn_f(char* name){
  		sprintf(tmp, "%d", figli);
  		strcat(newname, "_");
  		strcat(newname,tmp);
- 		sprintf(tmp, "%d", toclone->pid); //ora tmp contiene il nome della pipe, ovvero il pid del padre
- 		mknod(tmp,S_IFIFO,0);
- 		chmod(tmp,0660);
  		int k = kill(toclone->pid, SIGUSR2);
         if(k == -1) //errore nel kill
         {
@@ -401,7 +403,7 @@ int pspawn_f(char* name){
             printf("Richiesta di clonazione inviata al processo %s\n", name);
             int fd;
             do{
-                fd = open(tmp, O_RDONLY);
+                fd = open(fifo_name, O_RDONLY);
             }while(fd == -1);
             char fromchild[10];
             if(read(fd, fromchild, sizeof(fromchild)) == -1)
@@ -411,7 +413,6 @@ int pspawn_f(char* name){
                 return FALSE;
             }
             close(fd);
-            unlink(tmp);
             int newpid;
             sscanf(fromchild, "%d", &newpid);
             tree *insered = tree_insert(&toclone,newpid,newname);

@@ -5,6 +5,7 @@
 #include <fcntl.h>
 
 int pid_manager;
+const char fifo_name[] = "fifo/FIFO_SO_PROJECT";
 void handler_sigusr1(int signal) {
 	kill(getpid(),SIGKILL);
 }
@@ -24,12 +25,11 @@ void clone(int signal)
 	}
 	else //padre
 	{
-		char tosend[10], pipe_name[10];
+		char tosend[10];
 		sprintf(tosend, "%d", f);
-		sprintf(pipe_name, "%d", getpid());
 		int fd;
 		do{
-		fd = open(pipe_name, O_WRONLY);
+		fd = open(fifo_name, O_WRONLY);
 		}while(fd == -1);
 		write(fd, tosend, sizeof(tosend));
 		close(fd);
