@@ -35,7 +35,7 @@
 #define COMMAND_LENGTH 30
 
 #define KNRM  "\x1B[0m"
-#define BNRM  "\033[1m\033[37m" 
+#define BNRM  "\033[1m\033[37m"
 
 #define KRED  "\x1B[31m"
 #define BRED  "\033[1m\033[31m"
@@ -44,7 +44,7 @@
 #define BGRN  "\033[1m\033[32m"
 
 #define KYEL  "\x1B[33m"
-#define BYEL  "\033[1m\033[33m"     
+#define BYEL  "\033[1m\033[33m"
 
 #define KBLU  "\x1B[34m"
 #define BBLU  "\033[1m\033[34m"
@@ -53,7 +53,7 @@
 #define BMAG  "\033[1m\033[35m"
 
 #define KCYN  "\x1B[36m"
-#define BCYN  "\033[1m\033[36m" 
+#define BCYN  "\033[1m\033[36m"
 
 char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
 tree* tree_manager;
@@ -100,7 +100,7 @@ int main( int argc, char *argv[] ){
 	*/
 	if(argc == 2){	//Se c'è esattamente un argomento viene aperto il file che corrisponde al path "argv[1]"
 		/*FILE * testFile;
-		testFile = fopen (argv[1],"r");*/	//Funziona, ma dà warning per variabile non utilizzata
+		testFile = fopen (argv[1],"r");	/*//Funziona, ma dà warning per variabile non utilizzata
 	} else if( argc > 2 ){
 		printf("\tInseriti troppi argomenti (Max 1) \n");
 		return(1);
@@ -573,7 +573,7 @@ void sync_handler(int sig) {
 	sync_flag--;
 }
 
- 
+
 void child_death_wait(int sig) {
     int status;
     wait(&status);
