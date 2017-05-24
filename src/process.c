@@ -3,10 +3,12 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 int pid_manager;
 const char fifo_name[] = "fifo/FIFO_SO_PROJECT";
 void handler_sigusr1(int signal) {
+    kill(getppid(),SIGURG);
 	kill(getpid(),SIGKILL);
 }
 void clone(int signal)
@@ -39,9 +41,16 @@ void clone(int signal)
 }
 void external_close(int sig)
 {}
+void child_death_wait(int sig)
+{
+    int status;
+    wait(&status);
+    //printf("Morto %d s:%d\n",wait(&status), status);
+}
 int main(int argc, char *argv[]){
 	signal(SIGUSR1,handler_sigusr1);
 	signal(SIGUSR2,clone);
+    signal(SIGURG, child_death_wait);
     signal(SIGTERM,external_close);
     signal(SIGINT,external_close);
     pid_manager = getppid();

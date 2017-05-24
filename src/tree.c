@@ -54,9 +54,6 @@ tree* tree_insert(tree **t, int pid, char* name) {
 int tree_remove(tree *t) {
 	if (tree_empty(t->child)) {
 		if (kill(t->pid,SIGUSR1) == 0) {
-			int status;
-			waitpid(t->pid,&status,0);
-
 			if (!tree_empty(t->parent)) {
 				//we can remove the node
 				//we have 2 situations: t is a child or t is a sibling (as in the insert)

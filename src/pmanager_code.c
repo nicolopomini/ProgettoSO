@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -58,9 +59,11 @@ int string_equals( char* first , char* second);
 
 void overridden_tree_delete(tree **t);
 void sync_handler(int sig);
+void child_death_wait(int sig);
 
 int main( int argc, char *argv[] ){
 	signal(SIGUSR1,sync_handler);
+    signal(SIGURG, child_death_wait);
 	tree_init(&tree_manager);
 	tree* nmanager = tree_insert(&tree_manager,getpid(),"manager");
 
@@ -547,4 +550,10 @@ void overridden_tree_delete(tree **t) {
 void sync_handler(int sig)
 {
 	sync_flag--;
+}
+void child_death_wait(int sig)
+{
+    int status;
+    wait(&status);
+    //printf("Morto %d s:%d\n",wait(&status), status);
 }
