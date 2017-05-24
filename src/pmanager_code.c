@@ -496,7 +496,7 @@ int checkInput(int arguments_number, int command_num, char * token, char* argume
 			token = strtok(NULL, " "); //passa all'eventuale token successivo
 
 			if(token){
-				printf("ERRORE: Il comando %s può avere un solo argomento\n",commands[command_num]);
+				printf("\n\t%sERRORE%s: Il comando %s\"%s\"%s può avere un solo argomento\n",BRED,KNRM,BNRM,commands[command_num],KNRM);
 				res = FALSE;
 			}else{
 				strcpy(argumentReturn,possibileTokenCorretto);
@@ -504,13 +504,13 @@ int checkInput(int arguments_number, int command_num, char * token, char* argume
 			}
 
 		} else {	//In questo caso è stato usato il comando senza argomento
-			printf("ERRORE: Il comando %s deve essere utilizzato con un argomento\n",commands[command_num]);
+			printf("\n\t%sERRORE%s: Il comando %s\"%s\"%s deve essere utilizzato con un argomento\n",BRED,KNRM,BNRM,commands[command_num],KNRM);
 			res = FALSE;
 		}
 	} else if(arguments_number == 0){
 		token = strtok(NULL, " "); //passa al token successivo
 		if(token){
-			printf("ERRORE: Il comando %s non ammette argomenti\n",commands[command_num]);
+			printf("\n\t%sERRORE%s: Il comando %s\"%s\"%s non ammette argomenti\n",BRED,KNRM,BNRM,commands[command_num],KNRM);
 			res = FALSE;
 		}else{
 			argumentReturn = NULL;
