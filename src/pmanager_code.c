@@ -34,6 +34,27 @@
 
 #define COMMAND_LENGTH 30
 
+#define KNRM  "\x1B[0m"
+#define BNRM  "\033[1m\033[37m" 
+
+#define KRED  "\x1B[31m"
+#define BRED  "\033[1m\033[31m"
+
+#define KGRN  "\x1B[32m"
+#define BGRN  "\033[1m\033[32m"
+
+#define KYEL  "\x1B[33m"
+#define BYEL  "\033[1m\033[33m"     
+
+#define KBLU  "\x1B[34m"
+#define BBLU  "\033[1m\033[34m"
+
+#define KMAG  "\x1B[35m"
+#define BMAG  "\033[1m\033[35m"
+
+#define KCYN  "\x1B[36m"
+#define BCYN  "\033[1m\033[36m" 
+
 char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
 tree* tree_manager;
 map map_manager;
@@ -63,14 +84,16 @@ void child_death_wait(int sig);
 
 int main( int argc, char *argv[] ){
 	signal(SIGUSR1,sync_handler);
-    signal(SIGURG, child_death_wait);
+	signal(SIGURG, child_death_wait);
+
 	tree_init(&tree_manager);
 	tree* nmanager = tree_insert(&tree_manager,getpid(),"manager");
 
 	map_init(&map_manager);
 	map_add(&map_manager,nmanager->name,nmanager);
+
 	//apro fifo per spawn
-	mknod(fifo_name,S_IFIFO,0);
+ 	mknod(fifo_name,S_IFIFO,0);
  	chmod(fifo_name,0660);
 	/**
 	 * 	Fase di lettura degli argomenti
@@ -79,14 +102,17 @@ int main( int argc, char *argv[] ){
 		/*FILE * testFile;
 		testFile = fopen (argv[1],"r");*/	//Funziona, ma dà warning per variabile non utilizzata
 	} else if( argc > 2 ){
-		printf("Inseriti troppi argomenti (Max 1) \n");
+		printf("\tInseriti troppi argomenti (Max 1) \n");
 		return(1);
 	}
 
 	/**
 	 *	HEADER SHELL
 	*/
-	printf("\n\t*-*-*-*-*-*-*-*-*\n\tPMANAGER software\n\t*-*-*-*-*-*-*-*-*\n");
+	printf("\n\t%s╔═════╗╔═════╗ ╔════╗╔═══╗ ╔════╗╔═════╗╔═════╗╔═════╗%s\n",KBLU,KNRM);
+	printf("\t%s║ ═══ ║║ ║ ║ ║╔╩═══ ║║ ║ ║╔╩═══ ║║ ═══ ║║  ═══╣║  ╔══╝%s\n",KBLU,KNRM);
+	printf("\t%s║  ╔══╝║ ║ ║ ║║ ═══ ║║ ║ ║║ ═══ ║╠═══  ╣║  ═══╣║  ║%s\n",KBLU,KNRM);
+	printf("\t%s╚══╝   ╚═╩═╩═╝╚═════╝╚═╩═╝╚═════╝╚═════╝╚═════╝╚══╝%s\n\n",KBLU,KNRM);
 
 	/**
 	 *	Fase di lettura dei comandi da shell
@@ -96,7 +122,7 @@ int main( int argc, char *argv[] ){
 	//char nome_processo[50];
 
 	do{
-		printf("> ");
+		printf("%s> %s",BGRN,KNRM);
 		fgets(command,COMMAND_LENGTH,stdin);	//Prende tutto l'input fino all'invio
 
 		//BISOGNA RISOLVERE BUG:
@@ -132,8 +158,8 @@ int main( int argc, char *argv[] ){
 			case 0:{ //phelp
 				if(checkInput(0,command_num,token,NULL)){
 					if(phelp_f() == FALSE){
-							fprintf(stderr, "%s", "ERROR in phelp function\n");
-							return 1;
+						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione phelp\n",BRED,KNRM);
+						return 1;
 					}
 				}
 				break;
@@ -149,8 +175,8 @@ int main( int argc, char *argv[] ){
 			case 2:{ //plist
 				if(checkInput(0,command_num,token,NULL)){
 					if(plist_f() == FALSE){
-							fprintf(stderr, "%s", "ERROR in plist function\n");
-							return 1;
+						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione plist\n",BRED,KNRM);
+						return 1;
 					}
 				}
 				break;
@@ -159,7 +185,7 @@ int main( int argc, char *argv[] ){
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					if(pnew_f(argumentReturn) == FALSE){
-						fprintf(stderr, "%s", "ERROR in pnew function\n");
+						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione pnew\n",BRED,KNRM);
 						return 1;
 					}
 				}
@@ -169,7 +195,7 @@ int main( int argc, char *argv[] ){
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					if(pinfo_f(argumentReturn) == FALSE){
-						fprintf(stderr, "%s", "ERROR in pinfo function\n");
+						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione pinfo\n",BRED,KNRM);
 						return 1;
 					}
 				}
@@ -179,7 +205,7 @@ int main( int argc, char *argv[] ){
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					if(pclose_f(argumentReturn) == FALSE){
-						fprintf(stderr, "%s", "ERROR in pclose function\n");
+						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione pclose\n",BRED,KNRM);
 						return 1;
 					}
 				}
@@ -189,7 +215,7 @@ int main( int argc, char *argv[] ){
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					if(pspawn_f(argumentReturn) == FALSE){
-						fprintf(stderr, "%s", "ERROR in pspawn function\n");
+						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione pspawn\n",BRED,KNRM);
 						return 1;
 					}
 				}
@@ -199,7 +225,7 @@ int main( int argc, char *argv[] ){
 				char argumentReturn[COMMAND_LENGTH];
 				if(checkInput(1,command_num,token,argumentReturn)){
 					if(prmall_f(argumentReturn) == FALSE){
-						fprintf(stderr, "%s", "ERROR in prmall function\n");
+						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione prmall\n",BRED,KNRM);
 						return 1;
 					}
 				}
@@ -208,7 +234,7 @@ int main( int argc, char *argv[] ){
 			case 8:{ //ptree
 				if(checkInput(0,command_num,token,NULL)){
 					if(ptree_f() == FALSE){
-						fprintf(stderr, "%s", "ERROR in ptree function\n");
+						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione ptree\n",BRED,KNRM);
 						return 1;
 					}
 				}
@@ -216,7 +242,7 @@ int main( int argc, char *argv[] ){
 			}
 			case 9:break;	//spazio
 			default:{
-				printf("Stringa non valida,reinserire.\nPer ulteriori informazioni sull' utilizzo di questo programma digitare phelp\n");
+				printf("\t%sATTENZIONE:%s Stringa non valida,reinserire.%s\n\tPer ulteriori informazioni sull' utilizzo di questo programma digitare %s\"phelp\"%s\n",BYEL,KYEL,KNRM,BNRM,KNRM);
 				break;
 			}
 		}
@@ -236,32 +262,30 @@ int main( int argc, char *argv[] ){
 
 int phelp_f(){
 
-	printf("\nPMANAGER 0.0.1\n");
-	printf("Usage: command [parameters]\n");
-	printf( "quit​ : esce dalla shell custom\n"
-			"phelp: stampa questa guida\n"
-			"plist: elenca i processi generati da questo programma\n"
-			"pnew <nome>: crea un nuovo processo con nome <nome>\n"
-			"pinfo <nome>​ : fornisce informazioni sul processo <nome>\n"
-			"pclose <nome>​ : chiede al processo <nome> di chiudersi\n"
-			"pspawn <nome> : chiede al processo <nome> di clonarsi creando <nome_i> con i progressivo\n"
-			"prmall <nome> : chiedi al processo <nome> di chiudersi chiudendo anche eventuali cloni\n"
-			"ptree : mostra la gerarchia completa dei processi generati attivi \n\n");
+	printf("\n\t%sPMANAGER 0.0.1\n",BYEL);
+	printf("\t%sUsage:\t\t%scommand [parameters]\n",BNRM,KNRM);
+	printf("\t%squit​:\t\t%sesce dalla shell custom\n",BNRM,KNRM);
+	printf("\t%sphelp:\t\t%sstampa questa guida\n",BNRM,KNRM);
+	printf("\t%splist:\t\t%selenca i processi generati da questo programma\n",BNRM,KNRM);
+	printf("\t%spnew %s<nome>%s:\t%screa un nuovo processo con nome %s<nome>%s\n",BNRM,BGRN,BNRM,KNRM,BGRN,KNRM);
+	printf("\t%spinfo %s<nome>​%s:\t%sfornisce informazioni sul processo %s<nome>%s\n",BNRM,BGRN,BNRM,KNRM,BGRN,KNRM);
+	printf("\t%spclose %s<nome>%s​:\t%schiede al processo %s<nome>%s di chiudersi\n",BNRM,BGRN,BNRM,KNRM,BGRN,KNRM);
+	printf("\t%spspawn %s<nome>%s:\t%schiede al processo %s<nome>%s di clonarsi creando %s<nome_i>%s, con i progressivo\n",BNRM,BGRN,BNRM,KNRM,BGRN,KNRM,BGRN,KNRM);
+	printf("\t%sprmall %s<nome>%s:\t%schiedi al processo %s<nome>%s di chiudersi chiudendo anche eventuali cloni\n",BNRM,BGRN,BNRM,KNRM,BGRN,KNRM);
+	printf("\t%sptree:\t\t%smostra la gerarchia completa dei processi generati attivi\n\n",BNRM,KNRM);
 	return TRUE;
 }
-
-
 
 /**
  *
 */
 int plist_f(){
-	printf("Chiamato plist\n");
-	printf("Stampo lista processi\n\n");
+	printf("\n\tRichiesta di informazioni su tutti i processi attivi\n");
 	tree_print_list(tree_manager);
 	printf("\n");
 	return TRUE;
 }
+
 void quit_f()
 {
     int children = tree_getNumberOfChildren(tree_manager);
@@ -279,10 +303,10 @@ void quit_f()
  *
 */
 int pnew_f(char* name){
-	printf("Richiesta di creazione di un nuovo processo con nome \"%s\"\n", name);
+	printf("\n\tRichiesta di creazione nuovo processo con nome %s\"%s\"%s.\n",BBLU,name,KNRM);
 	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
- 		fprintf(stderr, "Errore, un nuovo processo non può avere il nome del manager\n");
+ 		fprintf(stderr, "\t%sERRORE:%s il nuovo processo non può avere il nome del manager.\n",BRED,KNRM);
  		return TRUE;
  	}
 	if (map_lookup(map_manager,name) == NULL) {
@@ -290,7 +314,7 @@ int pnew_f(char* name){
 		int f = fork();
 		if(f < 0)
 		{
-			fprintf(stderr, "Errore nella clonazione\n");
+			fprintf(stderr, "\t%sERRORE:%s processo non generato, errore durante il fork.\n",BRED,KNRM);
 			sync_flag = 0;
 			return FALSE;
 		}
@@ -305,7 +329,7 @@ int pnew_f(char* name){
 		{
 			tree* added = tree_insert(&tree_manager,f,name);
 			map_add(&map_manager,name,added);
-			printf("Il processo \"%s\" e' stato creato con successo\n", name);
+			printf("\tIl processo %s\"%s\"%s e' stato creato con successo.\n",BBLU,name,KNRM);
 			while(sync_flag != 0)
 				pause();
 		}
@@ -314,7 +338,7 @@ int pnew_f(char* name){
 		return TRUE;
 	} else {
 		//il processo "nome" esiste gia'
-		printf("ERROR: il processo \"%s\" esiste gia'.\n", name);
+		printf("\t%sERRORE:%s il processo %s\"%s\"%s esiste gia'.\n",BRED,KNRM,BBLU,name,KNRM);
 		return TRUE; //in questo caso si ritorna true perchè l'errore NON DEVE ESSERE BLOCCANTE ed è già stato segnalato sopra
 	}
 }
@@ -323,18 +347,18 @@ int pnew_f(char* name){
  *
 */
 int pinfo_f(char* name){
-	printf("Chiamato pinfo con nome \"%s\"\n",name);
+	printf("\n\tRichiesta di informazioni sul processo con nome %s\"%s\"%s.\n",BBLU,name,KNRM);
 
 	tree* toprint = map_lookup(map_manager,name);
 	if (toprint != NULL) {
 		//stampo, il processo esiste
-		printf("Stampo le informazioni relative al processo \"%s\"\n\n",name);
+		printf("\tStampo le informazioni relative al processo %s\"%s\"%s.\n\n",BBLU,name,KNRM);
 		tree_print_info(toprint);
 		printf("\n");
 		return TRUE;
 	} else {
 		//non esiste il processo "nome"
-		printf("ERROR: il processo \"%s\" non esiste.\n", name);
+		printf("\t%sERRORE:%s il processo %s\"%s\"%s non esiste.\n",BRED,KNRM,BBLU,name,KNRM);
 		return TRUE;
 	}
 }
@@ -343,26 +367,26 @@ int pinfo_f(char* name){
  *
 */
 int pclose_f(char*name){
-	printf("Chiamato pclose con nome \"%s\"\n",name);
+	printf("\n\tRichiesta di chiusura processo con nome %s\"%s\"%s\n",BBLU,name,KNRM);
 	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
- 		fprintf(stderr, "Errore, per chiudere il processo manager utilizzare il comando \"quit\"\n");
+ 		fprintf(stderr, "\t%sERRORE:%s per chiudere il pmanager utilizzare il comando %s\"quit\"%s.\n",BRED,KNRM,BNRM,KNRM);
  		return TRUE;
  	}
 	tree* toremove = map_lookup(map_manager,name);
 	if (toremove != NULL) {
 		//provo a rimuovere, il processo esiste
-		printf("Tentativo di rimozione del processo \"%s\"\n",name);
+		printf("\tTentativo di rimozione del processo %s\"%s\"%s\n",BBLU,name,KNRM);
 		if (tree_remove(toremove) == 1){
 			map_remove(&map_manager,name);
-			printf("processo rimosso con successo\n");
+			printf("\tProcesso %s\"%s\"%s rimosso con successo\n",BBLU,name,KNRM);
 		} else {
-			printf("processo non rimosso\n");
+			printf("\t%sERRORE:%s processo %s\"%s\"%s non rimosso\n",BRED,KNRM,BBLU,name,KNRM);
 		}
 		return TRUE;
 	} else {
 		//il processo non esiste
-		printf("ERROR: il processo \"%s\" non esiste.\n", name);
+		printf("\t%sERRORE:%s il processo %s\"%s\"%s non esiste.\n",BRED,KNRM,BBLU,name,KNRM);
 		return TRUE;
 	}
 }
@@ -371,17 +395,17 @@ int pclose_f(char*name){
  *
 */
 int pspawn_f(char* name){
-  	printf("Chiamato pspawn con nome \"%s\"\n",name);
+  	printf("\n\tRichiesta di clonazione del processo con nome %s\"%s\"%s\n",BBLU,name,KNRM);
 
  	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
- 		fprintf(stderr, "Errore, non si può clonare il manager\n");
+ 		fprintf(stderr, "\t%sERRORE:%s vietato clonare il manager\n",BRED,KNRM);
  		return TRUE;
  	}
  	tree *toclone = map_lookup(map_manager,name);
  	if(toclone == NULL) //non esiste
  	{
- 		fprintf(stderr, "Il processo %s non esiste\n", name);
+ 		fprintf(stderr, "\t%sERRORE:%s il processo %s\"%s\"%s non esiste.\n\tImpossibile Clonare\n",BRED,KNRM,BBLU,name,KNRM);
  		return TRUE;
  	}
  	else
@@ -397,21 +421,21 @@ int pspawn_f(char* name){
  		int k = kill(toclone->pid, SIGUSR2);
         if(k == -1) //errore nel kill
         {
-            fprintf(stderr, "Errore di comunicazione con il processo %s [%d]\n", name, toclone->pid);
+            fprintf(stderr, "%sERRORE:%s fallita comunicazione con il processo %s\"%s\"%s (%s%d%s)\n",BRED,KNRM,BBLU,name,KNRM,BBLU,toclone->pid,KNRM);
             sync_flag = 0;
             return FALSE;
         }
         else
         {
-            printf("Richiesta di clonazione inviata al processo %s\n", name);
+            printf("\tRichiesta di clonazione inviata al processo %s\"%s\"%s\n",BBLU,name,KNRM);
             int fd;
             do{
-                fd = open(fifo_name, O_RDONLY);
+              	fd = open(fifo_name, O_RDONLY);
             }while(fd == -1);
             char fromchild[10];
             if(read(fd, fromchild, sizeof(fromchild)) == -1)
             {
-                fprintf(stderr, "Errore di comunicazione con il processo %s [%d]\n", name, toclone->pid);
+            	fprintf(stderr, "%sERRORE:%s fallita comunicazione con il processo %s\"%s\"%s (%s%d%s)\n",BRED,KNRM,BBLU,name,KNRM,BBLU,toclone->pid,KNRM);
                 sync_flag = 0;
                 return FALSE;
             }
@@ -431,22 +455,21 @@ int pspawn_f(char* name){
  *
 */
 int prmall_f(char* name){
-	printf("Chiamato prmall con nome \"%s\"\n",name);
+	printf("\n\tRichiesta di chiusura ricorsiva sul processo con nome %s\"%s\"%s\n",BBLU,name,KNRM);
 	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
- 		fprintf(stderr, "Errore, per chiudere il processo manager e rimuovere tutti i processi utilizzare il comando \"quit\"\n");
+ 		(stderr, "\t%sERRORE:%s la chiusura del manager si attua con il comando %s\"quit\"%s\n",BRED,KNRM,BNRM,KNRM);
  		return TRUE;
  	}
 	tree* todelete = map_lookup(map_manager,name);
 	if (todelete != NULL) {
 		//provo a rimuovere, il processo esiste
-		printf("Tentativo di rimozione del processo \"%s\" e dei suoi figli\n",name);
 		overridden_tree_delete(&todelete);
-		printf("processo e figli rimossi con successo\n");
+		printf("\tProcesso %s\"%s\"%s e figli rimossi con successo\n",BBLU,name,KNRM);
 		return TRUE;
 	} else {
 		//il processo non esiste
-		printf("ERROR: il processo \"%s\" non esiste.\n", name);
+ 		fprintf(stderr, "\t%sERRORE:%s il processo %s\"%s\"%s non esiste.\n",BRED,KNRM,BBLU,name,KNRM);
 		return TRUE;
 	}
 }
@@ -455,8 +478,7 @@ int prmall_f(char* name){
  *
 */
 int ptree_f(){
-	printf("Chiamato ptree\n");
-	printf("Stampo albero processi\n\n");
+	printf("\n\tRichiesta di informazioni sulla gerarchia dei processi\n\n");
 	tree_print_tree(tree_manager);
 	printf("\n");
 	return TRUE;
@@ -547,12 +569,12 @@ void overridden_tree_delete(tree **t) {
 	//printf("\t\tremoving %d\n", (*t)->pid);
 	tree_remove(*t);
 }
-void sync_handler(int sig)
-{
+void sync_handler(int sig) {
 	sync_flag--;
 }
-void child_death_wait(int sig)
-{
+
+ 
+void child_death_wait(int sig) {
     int status;
     wait(&status);
     //printf("Morto %d s:%d\n",wait(&status), status);

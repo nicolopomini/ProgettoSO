@@ -8,6 +8,27 @@
 
 #include "tree.h"
 
+#define KNRM  "\x1B[0m"
+#define BNRM  "\033[1m\033[37m" 
+
+#define KRED  "\x1B[31m"
+#define BRED  "\033[1m\033[31m"
+
+#define KGRN  "\x1B[32m"
+#define BGRN  "\033[1m\033[32m"
+
+#define KYEL  "\x1B[33m"
+#define BYEL  "\033[1m\033[33m"     
+
+#define KBLU  "\x1B[34m"
+#define BBLU  "\033[1m\033[34m"
+
+#define KMAG  "\x1B[35m"
+#define BMAG  "\033[1m\033[35m"
+
+#define KCYN  "\x1B[36m"
+#define BCYN  "\033[1m\033[36m" 
+
 void tree_init(tree **t) {
 	(*t) = NULL;
 }
@@ -136,40 +157,26 @@ void printCustomTree(tree *t, int first, int last) {
 		printCustomTree(tmp,0,1);
 }
 
-void printNewTree(tree *t) {
-	
-}
-
 //the wrapper of the recursive function
 void tree_print_tree(tree* t) {
-	//printCustomTree(t,1,1);
+	printCustomTree(t,1,1);
 	
 }
 
 //Prints in a really cool way some info on the tree node passed
 void tree_print_info(tree* t) {
-	printf("Process: %s - ID: %d.\n", t->name, t->pid);
+	printf("\t%sProcesso:%s %s \n\t%sProcess ID:%s %d.\n",BCYN,KNRM,t->name,BCYN,KNRM,t->pid);
 	if (t->parent != NULL) {
-		printf("Parent Process ID: %d.\n", t->parent->pid);
+		printf("\t%sProcess ID del padre:%s %d.\n",BCYN,KNRM,t->parent->pid);
 	}
+	printf("\t%sNumero di figli generati:%s %d.\n",BCYN,KNRM,t->child_number);
+	printf("\t%sNumero di figli ancora attivi:%s %d.\n",BCYN,KNRM,tree_getNumberOfChildren(t));
+
 	if (t->depth != 0) {
-		int module = t->depth%10;
-		char *num = (char*) malloc(sizeof(char)*3);
-		if (module == 1)
-			strcpy(num,"st");
-		else if (module == 2)
-			strcpy(num,"nd");
-		else if (module == 3)
-			strcpy(num,"rd");
-		else
-			strcpy(num,"th");
-
-		printf("I am a child of the %d%s generation.\n", t->depth,num);
+		printf("\tSono un figlio di %s%da%s generazione.\n",BGRN,t->depth,KNRM);
 	} else {
-		printf("I am the pmanager.\n");
+		printf("\tSono il %spmanager%s.\n",BGRN,KNRM);
 	}
-
-	printf("Number of actual direct children: %d.\n", tree_getNumberOfChildren(t));
 }
 
 //Prints in another really cool way the structure of the tree, with all
@@ -179,6 +186,8 @@ void tree_print_list(tree* t) {
 	q->element = t;
 	q->next = NULL;
 	int last_depth = t->depth;
+
+	printf("\n\t%sPMANAGER%s\n",BYEL,KNRM);
 
 	while (q != NULL) {
 		tree* tmp = q->element;
@@ -197,23 +206,11 @@ void tree_print_list(tree* t) {
 			tmp_insert = tmp_insert->sibling;
 		}
 		if (last_depth == tmp->depth-1) {
-			
-			int module = tmp->depth%10;
-			char *num = (char*) malloc(sizeof(char)*3);
-			if (module == 1)
-				strcpy(num,"ST");
-			else if (module == 2)
-				strcpy(num,"ND");
-			else if (module == 3)
-				strcpy(num,"RD");
-			else
-				strcpy(num,"TH");
-
-			printf("\nCHILDREN OF THE %d%s GENERATION:\n",tmp->depth,num);
+			printf("\n\t%sFIGLI DELLA %da GENERAZIONE:%s\n",BYEL,tmp->depth,KNRM);
 			last_depth = tmp->depth;
 		}
 
-		printf("Process: %s - ID: %d.\n", tmp->name, tmp->pid);
+		printf("\t%sNome processo:%s %s - %sProcess ID:%s %d.\n", BCYN,KNRM,tmp->name,BCYN,KNRM, tmp->pid);
 		
 		list* n = q->next;
 		free(q);
