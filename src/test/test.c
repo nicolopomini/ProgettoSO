@@ -63,7 +63,8 @@ int test1(){
 				fprintf(test1,"%s %s\n", commands[command], create_name());
 			}else{
 			int n = rand()%list_size(nomi);
-			fprintf(test1, "%s %s_%i\n", commands[command], (n_elem_lista(nomi,n))->name_process, ++(n_elem_lista(nomi,n))->i);
+			fprintf(test1, "%s %s\n", commands[command], (n_elem_lista(nomi,n))->name_process);
+			((n_elem_lista(nomi,n))->i)++;
 			}
 		}else{
 			fprintf(test1,"%s\n", commands[command]);
