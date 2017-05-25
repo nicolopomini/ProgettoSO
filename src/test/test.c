@@ -15,7 +15,7 @@ Creazione e modifica nomi pspawn
 */
 
 //Lista comandi
-const char *commands[8]={"help","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
+const char *commands[8]={"phelp","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
 const int DIM = 15; //Dimensione massima di un nome di un processo
 const int NUM_COMMANDS = 100; //Numero massimo di comandi nel test
 //
@@ -27,9 +27,6 @@ char* create_name(); //Restituisce un nome di lunghezza variabile (max DIM)
 int main(){
 	if( test1() == 0 )
 		printf("La creazione del test1 non e' andata a buon fine\n");
-
-	printf("Bene bene\n");
-
 
 	return 0;
 }
@@ -44,7 +41,6 @@ int test1(){
 	r = rand();
 
 	for(int i=0 ; i < (r%NUM_COMMANDS) ; i++){
-		printf("Gli elementi nella lista sono: %i\n", list_size(nomi));
 		int command = rand()%8;
 		if (command == 2){
 			char* nome = create_name();

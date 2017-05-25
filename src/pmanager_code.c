@@ -99,8 +99,9 @@ int main( int argc, char *argv[] ){
 	 * 	Fase di lettura degli argomenti
 	*/
 	if(argc == 2){	//Se c'è esattamente un argomento viene aperto il file che corrisponde al path "argv[1]"
-		/*FILE * testFile;
-		testFile = fopen (argv[1],"r");*/
+		//FILE * testFile;
+		//testFile = fopen (argv[1],"r");-----------------------------------------------------------------------
+		freopen(argv[1], "r", stdin);
 	} else if( argc > 2 ){
 		printf("\tInseriti troppi argomenti (Max 1) \n");
 		return(1);
@@ -124,7 +125,8 @@ int main( int argc, char *argv[] ){
 	do{
 		printf("%s> %s",BGRN,KNRM);
 		fgets(command,COMMAND_LENGTH,stdin);	//Prende tutto l'input fino all'invio
-
+		if(argc == 2)
+			printf("%s%s %s",BGRN,command,KNRM);
 		//BISOGNA RISOLVERE BUG:
 		//Quando si inserisce lo spazio c'è un bug
 
