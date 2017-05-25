@@ -44,6 +44,7 @@ void clone(int signal)
 	{
 		printf("\tProcesso %s%d%s avviato\n",BBLU,getpid(),KNRM);
 		kill(pid_manager,SIGUSR1);
+		printf("Processo spawned: segnale inviato\n");
 
 	}
 	else //padre
@@ -58,6 +59,7 @@ void clone(int signal)
 		close(fd);
 		printf("\tClonazione avvenuta: processo %s%d%s generato\n",BBLU,f,KNRM);
 		kill(pid_manager,SIGUSR1);
+		printf("Processo padre: segnale inviato\n");
 	}
 }
 void external_close(int sig) {}

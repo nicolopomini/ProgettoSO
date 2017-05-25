@@ -100,7 +100,7 @@ int main( int argc, char *argv[] ){
 	*/
 	if(argc == 2){	//Se c'è esattamente un argomento viene aperto il file che corrisponde al path "argv[1]"
 		/*FILE * testFile;
-		testFile = fopen (argv[1],"r");	/*//Funziona, ma dà warning per variabile non utilizzata
+		testFile = fopen (argv[1],"r");*/
 	} else if( argc > 2 ){
 		printf("\tInseriti troppi argomenti (Max 1) \n");
 		return(1);
@@ -570,6 +570,7 @@ void overridden_tree_delete(tree **t) {
 	tree_remove(*t);
 }
 void sync_handler(int sig) {
+	printf("Manager: segnale ricevuto\n");
 	sync_flag--;
 }
 
