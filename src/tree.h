@@ -1,3 +1,4 @@
+
 #ifndef TREE_H
 #define TREE_H
 
@@ -14,7 +15,8 @@ typedef struct tree_n{
 	char* name;
 	int depth;
 	int child_number;
-	
+	int active;
+
 	//tree references
 	tree* parent;
 	tree* sibling;
@@ -45,10 +47,10 @@ tree* tree_insert(tree **t, int pid, char* name);
 
 //It remove the tree node passed as argument from his parent and returns 1.
 //It the tree passed has children, nothing happens.
-int tree_remove(tree *t);
+int tree_remove(tree *t, int delete);
 
 // It deletes the tree passed, in a recursive way.
-void tree_delete(tree **t);
+void tree_delete(tree **t,int delete);
 
 //returns a int that indicates the number of actual (direct) children.
 int tree_getNumberOfChildren(tree *t);

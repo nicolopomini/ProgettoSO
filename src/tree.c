@@ -41,6 +41,7 @@ tree* tree_insert(tree **t, int pid, char* name) {
 	tree* add = (tree*) malloc(sizeof(tree));
 	add->pid = pid;
 	add->child_number = 0;
+	add->active = 1;
 
 	int len = strlen(name);
 	add->name = (char*) malloc(sizeof(char)*(len+1));
@@ -72,28 +73,33 @@ tree* tree_insert(tree **t, int pid, char* name) {
 	}
 	return add;
 }
-int tree_remove(tree *t) {
+int tree_remove(tree *t, int delete) {
 	if (tree_empty(t->child)) {
 		if (kill(t->pid,SIGUSR1) == 0) {
-			if (!tree_empty(t->parent)) {
-				//we can remove the node
-				//we have 2 situations: t is a child or t is a sibling (as in the insert)
-				if (t->parent->child == t) {
-					t->parent->child = t->sibling; 
-				} else {
-					tree* prec = t->parent->child;
-					while(prec->sibling != t) {
-						prec = prec->sibling;
+			if (delete == 1) {
+				if (!tree_empty(t->parent)) {
+					//we can remove the node
+					//we have 2 situations: t is a child or t is a sibling (as in the insert)
+					if (t->parent->child == t) {
+						t->parent->child = t->sibling; 
+					} else {
+						tree* prec = t->parent->child;
+						while(prec->sibling != t) {
+							prec = prec->sibling;
+						}
+						prec->sibling = t->sibling;
 					}
-					prec->sibling = t->sibling;
-				}
 
-				free(t->name);
-				free(t);
-				return 1;
+					free(t->name);
+					free(t);
+					return 1;
+				} else {
+					free(t->name);
+					free(t);
+					return 1;
+				}
 			} else {
-				free(t->name);
-				free(t);
+				t->active = 0;
 				return 1;
 			}
 		} else {
@@ -106,24 +112,24 @@ int tree_remove(tree *t) {
 	}
 }
 
-void tree_delete(tree **t) {
+void tree_delete(tree **t,int delete) {
 	/*recursively call the delete on all the children of the node.
 	the when a node has no children remove it. There is no need to 
 	search all the siblings because as you delete the child of a node,
 	the siblings takes it place. (I love this function, is really magical)
 	*/
 	while (!tree_empty((*t)->child)) {
-		tree_delete(&(*t)->child);
+		tree_delete(&(*t)->child, delete);
 	}
-	tree_remove(*t);
+	tree_remove(*t,delete);
 }
 
 int tree_getNumberOfChildren(tree *t) {
 	int child_count = 0;
 	tree* tmp = t->child;
 	while (!tree_empty(tmp)) {
+		child_count+=tmp->active;
 		tmp = tmp->sibling;
-		child_count++;
 	}
 
 	return child_count;
@@ -133,17 +139,19 @@ int tree_getNumberOfChildren(tree *t) {
 //First setted indicates that the node is the root (used only on the first call)
 //Second setted means that the node is the last child, so a different box shape is printed
 void printCustomTree(tree *t, int first, int last) {
+	printf("\t");
+
 	if (first == 1) {
-		printf(" %s\n",t->name);
+		printf(" %s%s%s\n",BYEL,t->name,KNRM);
 	} else {
 		for (int i = 0; i < t->depth-1; ++i) {
 			printf("  \u2502 ");	
 		}
-
+		
 		if (last == 1) {
-			printf("  \u2514\u2500%s\n",t->name);
+			printf("  \u2514\u2500%s%s%s\n",(t->active == 1?BGRN:BRED),t->name,KNRM);
 		} else {
-			printf("  \u251C\u2500%s\n",t->name);
+			printf("  \u251C\u2500%s%s%s\n",(t->active == 1?BGRN:BRED),t->name,KNRM);
 		}	
 	}
 
@@ -196,22 +204,26 @@ void tree_print_list(tree* t) {
 		list* tmpq = q;
 
 		while (tmp_insert != NULL) {
-			while(tmpq->next != NULL)
-				tmpq = tmpq->next;
+			//if (tmp_insert->active == 1) {
+				while(tmpq->next != NULL)
+					tmpq = tmpq->next;
 
-			tmpq->next = (list*) malloc(sizeof(list));
-			tmpq->next->element = tmp_insert;
-			tmpq->next->next = NULL;
+				tmpq->next = (list*) malloc(sizeof(list));
+				tmpq->next->element = tmp_insert;
+				tmpq->next->next = NULL;
 
-			tmp_insert = tmp_insert->sibling;
-		}
-		if (last_depth == tmp->depth-1) {
-			printf("\n\t%sFIGLI DELLA %da GENERAZIONE:%s\n",BYEL,tmp->depth,KNRM);
-			last_depth = tmp->depth;
+				tmp_insert = tmp_insert->sibling;
+			//}
 		}
 
-		printf("\t%sNome processo:%s %s - %sProcess ID:%s %d.\n", BCYN,KNRM,tmp->name,BCYN,KNRM, tmp->pid);
-		
+		if (tmp->active == 1) {
+			if (last_depth == tmp->depth-1) {
+				printf("\n\t%sFIGLI DELLA %da GENERAZIONE:%s\n",BYEL,tmp->depth,KNRM);
+				last_depth = tmp->depth;
+			}
+
+			printf("\t%sNome processo:%s %s - %sProcess ID:%s %d.\n", BCYN,KNRM,tmp->name,BCYN,KNRM, tmp->pid);
+		}
 		list* n = q->next;
 		free(q);
 		q = n;
