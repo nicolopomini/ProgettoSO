@@ -10,23 +10,28 @@ list* list_init()
 
 void add_name(list **l, char * n){
 	if( (*l) == NULL){
-		(*l) =(list*)malloc(sizeof(list));
-		(*l)->name_process=(char*)malloc(sizeof(char)*(strlen(n)));
-		strcpy((*l)->name_process,n);
-		(*l)->pred = NULL;
-		(*l)->succ = NULL;
-		(*l)->i = 0;
+		list* tmp = (list*)malloc(sizeof(list));
+		tmp->i = 0;
+		tmp->name_process=(char*)malloc(sizeof(char)*(strlen(n)+1));
+		sprintf(tmp->name_process,"%s",n);
+		tmp->pred = NULL;
+		tmp->succ = NULL;
+		(*l)=tmp;	
 	}else{
 		if(list_lookup((*l), n)==NULL){
 			list* tmp = (list*)malloc(sizeof(list));
-			tmp->name_process=(char*)malloc(sizeof(char)*(strlen(n)));
-			strcpy(tmp->name_process,n);
+			tmp->i = 0;
+			tmp->name_process=(char*)malloc(sizeof(char)*(strlen(n)+1));
+			sprintf(tmp->name_process,"%s",n);
 			while((*l)->succ != NULL){
 				(*l) = (*l)->succ;
 			}
 			tmp->pred = (*l);
 			(*l)->succ = tmp;
-			tmp->succ= NULL;
+			tmp->succ = NULL;
+			while((*l)->pred != NULL){
+				(*l) = (*l)->pred;
+			}
 		}
 		else{
 			printf("Nome gia' presente\n");
@@ -48,7 +53,7 @@ list* list_lookup(list *l, char * n){
 	list* tmp=l;
 	while(tmp != NULL){
 		if(strcmp(n,tmp->name_process)==0){
-		return tmp;
+			return tmp;
 		}
 		tmp=tmp->succ;
 	}
@@ -77,8 +82,9 @@ list* n_elem_lista(list *l, int n){
 }
 
 void print_list(list* l){
-	while(l!=NULL){
-		printf("%s\n", l->name_process);
-		l = l->succ;
+	list* tmp = l;
+	while(tmp!=NULL){
+		printf("%s\n", tmp->name_process);
+		tmp = tmp->succ;
 	}
 }
