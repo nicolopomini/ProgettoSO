@@ -73,31 +73,25 @@ tree* tree_insert(tree **t, int pid, char* name) {
 	}
 	return add;
 }
-int tree_remove(tree *t, int delete) {
+int tree_remove(tree *t) {
 	if (tree_empty(t->child)) {
 		if (kill(t->pid,SIGUSR1) == 0) {
-			if (delete == 1) {
-				if (!tree_empty(t->parent)) {
-					//we can remove the node
-					//we have 2 situations: t is a child or t is a sibling (as in the insert)
-					if (t->parent->child == t) {
-						t->parent->child = t->sibling; 
-					} else {
-						tree* prec = t->parent->child;
-						while(prec->sibling != t) {
-							prec = prec->sibling;
-						}
-						prec->sibling = t->sibling;
-					}
-
-					free(t->name);
-					free(t);
-					return 1;
+			if (!tree_empty(t->parent)) {
+				//we can remove the node
+				//we have 2 situations: t is a child or t is a sibling (as in the insert)
+				if (t->parent->child == t) {
+					t->parent->child = t->sibling; 
 				} else {
-					free(t->name);
-					free(t);
-					return 1;
+					tree* prec = t->parent->child;
+					while(prec->sibling != t) {
+						prec = prec->sibling;
+					}
+					prec->sibling = t->sibling;
 				}
+
+				free(t->name);
+				free(t);
+				return 1;
 			} else {
 				t->active = 0;
 				return 1;
@@ -112,16 +106,16 @@ int tree_remove(tree *t, int delete) {
 	}
 }
 
-void tree_delete(tree **t,int delete) {
+void tree_delete(tree **t) {
 	/*recursively call the delete on all the children of the node.
 	the when a node has no children remove it. There is no need to 
 	search all the siblings because as you delete the child of a node,
 	the siblings takes it place. (I love this function, is really magical)
 	*/
 	while (!tree_empty((*t)->child)) {
-		tree_delete(&(*t)->child, delete);
+		tree_delete(&(*t)->child);
 	}
-	tree_remove(*t,delete);
+	tree_remove(*t);
 }
 
 int tree_getNumberOfChildren(tree *t) {

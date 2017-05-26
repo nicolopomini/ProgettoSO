@@ -78,7 +78,7 @@ int checkInput(int arguments_number, int command_num, char * token, char* argume
 void all_lowercase(char* word);
 int string_equals( char* first , char* second);
 
-void overridden_tree_delete(tree **t, int delete);
+void overridden_tree_delete(tree **t);
 void sync_handler(int sig);
 void child_death_wait(int sig);
 
@@ -289,7 +289,7 @@ int plist_f(){
 }
 
 void quit_f() {
-    overridden_tree_delete(&tree_manager,1);
+    overridden_tree_delete(&tree_manager);
     unlink(fifo_name);
 }
 /**
@@ -370,7 +370,7 @@ int pclose_f(char*name){
 	if (toremove != NULL) {
 		//provo a rimuovere, il processo esiste
 		printf("\tTentativo di rimozione del processo %s\"%s\"%s\n",BBLU,name,KNRM);
-		if (tree_remove(toremove,0) == 1){
+		if (tree_remove(toremove) == 1){
 			map_remove(&map_manager,name);
 			printf("\tProcesso %s\"%s\"%s rimosso con successo\n",BBLU,name,KNRM);
 		} else {
@@ -457,7 +457,7 @@ int prmall_f(char* name){
 	tree* todelete = map_lookup(map_manager,name);
 	if (todelete != NULL) {
 		//provo a rimuovere, il processo esiste
-		overridden_tree_delete(&todelete,0);
+		overridden_tree_delete(&todelete);
 		printf("\tProcesso %s\"%s\"%s e figli rimossi con successo\n",BBLU,name,KNRM);
 		return TRUE;
 	} else {
@@ -548,19 +548,19 @@ int string_equals( char* first , char* second){
 	return TRUE;
 }
 
-void overridden_tree_delete(tree **t,int delete) {
+void overridden_tree_delete(tree **t) {
 	/*recursively call the delete on all the children of the node.
 	the when a node has no children remove it. There is no need to
 	search all the siblings because as you delete the child of a node,
 	the siblings takes it place. (I love this function, is really magical)
 	*/
 	while (!tree_empty((*t)->child)) {
-		overridden_tree_delete(&(*t)->child,delete);
+		overridden_tree_delete(&(*t)->child);
 	}
 
 	map_remove(&map_manager,(*t)->name);
 	//printf("\t\tremoving %d\n", (*t)->pid);
-	tree_remove(*t,delete);
+	tree_remove(*t);
 }
 void sync_handler(int sig) {
 	printf("Manager: segnale ricevuto\n");
