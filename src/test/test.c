@@ -18,7 +18,7 @@ Creazione e modifica nomi pspawn
 const char *commands[8]={"phelp","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
 const int DIM = 15; //Dimensione massima di un nome di un processo
 const int NUM_COMMANDS = 100; //Numero massimo di comandi nel test
-const int n_processi_da_creare = 10000;
+const int n_processi_da_creare = 1000;
 //
 int test1();
 int test2();
