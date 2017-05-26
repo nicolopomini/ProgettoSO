@@ -58,7 +58,6 @@
 char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
 tree* tree_manager;
 map map_manager;
-int sync_flag = 0;
 const char fifo_name[] = "fifo/FIFO_SO_PROJECT";
 
 int phelp_f();	// "_f" perchè altrimenti pclose è in conflitto con una funzione pclose sulle pipe
@@ -79,11 +78,9 @@ void all_lowercase(char* word);
 int string_equals( char* first , char* second);
 
 void overridden_tree_delete(tree **t);
-void sync_handler(int sig);
 void child_death_wait(int sig);
 
 int main( int argc, char *argv[] ){
-	signal(SIGUSR1,sync_handler);
 	signal(SIGURG, child_death_wait);
 
 	tree_init(&tree_manager);
@@ -289,7 +286,15 @@ int plist_f(){
 }
 
 void quit_f() {
-    overridden_tree_delete(&tree_manager);
+	int toclose = tree_getNumberOfChildren(tree_manager);
+	tree *t, *tmp;
+	t = tree_manager->child;
+	for(int i = 0; i < toclose; i++)
+	{
+		tmp = t;
+		t = t->sibling;
+		overridden_tree_delete(&tmp);
+	}
     unlink(fifo_name);
 }
 /**
@@ -303,28 +308,32 @@ int pnew_f(char* name){
  		return TRUE;
  	}
 	if (map_lookup(map_manager,name) == NULL) {
-		sync_flag = 1;
+		int fd[2];
+		pipe(fd);
 		int f = fork();
 		if(f < 0)
 		{
 			fprintf(stderr, "\t%sERRORE:%s processo non generato, errore durante il fork.\n",BRED,KNRM);
-			sync_flag = 0;
 			return FALSE;
 		}
 		else if(f == 0)
 		{
-			char *const parmList[] = {"processo",NULL};
+			close(fd[0]);
+			char pipe_child[10];
+			sprintf(pipe_child, "%d", fd[1]);
+			char *const parmList[] = {"processo", pipe_child ,NULL};
 			execv("./processo",parmList);
-			sync_flag = 0;
 			return FALSE;	//non dovrebbe mai essere eseguito
 		}
 		else
 		{
+			char message[2];
+			close(fd[1]);
+			read(fd[0], message, 2);
+			close(fd[0]);
 			tree* added = tree_insert(&tree_manager,f,name);
 			map_add(&map_manager,name,added);
 			printf("\tIl processo %s\"%s\"%s e' stato creato con successo.\n",BBLU,name,KNRM);
-			while(sync_flag != 0)
-				pause();
 		}
 
 
@@ -403,7 +412,6 @@ int pspawn_f(char* name){
  	}
  	else
  	{
- 		sync_flag = 2;
  		char *newname = malloc(sizeof(char)*30);
  		strcpy(newname,name);
  		int figli = toclone->child_number;
@@ -415,7 +423,6 @@ int pspawn_f(char* name){
         if(k == -1) //errore nel kill
         {
             fprintf(stderr, "%sERRORE:%s fallita comunicazione con il processo %s\"%s\"%s (%s%d%s)\n",BRED,KNRM,BBLU,name,KNRM,BBLU,toclone->pid,KNRM);
-            sync_flag = 0;
             return FALSE;
         }
         else
@@ -429,20 +436,19 @@ int pspawn_f(char* name){
             if(read(fd, fromchild, sizeof(fromchild)) == -1)
             {
             	fprintf(stderr, "%sERRORE:%s fallita comunicazione con il processo %s\"%s\"%s (%s%d%s)\n",BRED,KNRM,BBLU,name,KNRM,BBLU,toclone->pid,KNRM);
-                sync_flag = 0;
                 return FALSE;
             }
-            close(fd);
             int newpid;
             sscanf(fromchild, "%d", &newpid);
             tree *insered = tree_insert(&toclone,newpid,newname);
             map_add(&map_manager,newname,insered);
-            while(sync_flag != 0)
-				pause();
+            //read for synch
+            read(fd, fromchild, sizeof(fromchild));
+            close(fd);
         }
  	}
   	return TRUE;
-  }
+ }
 
 /**
  *
@@ -561,10 +567,6 @@ void overridden_tree_delete(tree **t) {
 	map_remove(&map_manager,(*t)->name);
 	//printf("\t\tremoving %d\n", (*t)->pid);
 	tree_remove(*t);
-}
-void sync_handler(int sig) {
-	printf("Manager: segnale ricevuto\n");
-	sync_flag--;
 }
 
 
