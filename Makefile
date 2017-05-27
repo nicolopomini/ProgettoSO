@@ -36,11 +36,11 @@ build: src/*.c src/*.h src/test/*
 assets:
 	@ $(MAKE) build;
 	@ mkdir assets;
-	@ cd build; ./test_generator; mv ./test1.txt ./../assets/; gcc -o test_generator $(TESTCODEPATH);
+	@ cd build; ./test_generator; mv ./test2.txt ./../assets/; gcc -o test_generator $(TESTCODEPATH);
 
 test:
 	@ $(MAKE) assets;
-	@ cd ./build; ./pmanager ./../assets/test1.txt;
+	@ cd ./build; ./pmanager ./../assets/test2.txt;
 
 run:
 	@ $(MAKE) build;

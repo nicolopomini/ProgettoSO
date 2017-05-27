@@ -33,9 +33,6 @@ void add_name(list **l, char * n){
 				(*l) = (*l)->pred;
 			}
 		}
-		else{
-			printf("Nome gia' presente\n");
-		}
 	}
 }
 

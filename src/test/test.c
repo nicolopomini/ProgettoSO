@@ -5,9 +5,9 @@
 #include "list.h"
 
 //Crea tre file di test:
-// Uno normale ( senza casi strani )
-// Uno con più casi strani e limite possibile
-// Uno con esagerazione di processi
+// Test1 nomi e funzioni random
+// Test2 Numero alto di processi creati
+
 
 /*TODO things:
 Fixare l'abort per numeri processi alti, fare il delite dalla lista quando si chiama il comando delite <nome>
@@ -15,26 +15,24 @@ Fixare l'abort per numeri processi alti, fare il delite dalla lista quando si ch
 
 //Lista comandi
 const char *commands[8]={"phelp","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
-const int DIM = 15; //Dimensione massima di un nome di un processo
+const int DIM = 15; //Dimensione di un nome di un processo (senza gli spawn) 
 const int NUM_COMMANDS = 100; //Numero massimo di comandi nel test
-const int n_processi_da_creare = 1000;
+const int N_MAX_PROCESS = 10000; //Numero di processi da creare nel test2
 //
 int test1();
 int test2();
-int test3();
 char* create_name(); //Restituisce un nome di lunghezza variabile (max DIM)
 
 int main(){
 
 	list *prova = list_init();
-	if( test1() == 0 )
-		printf("La creazione del test1 non e' andata a buon fine\n");
 	if( test2() == 0 )
-		printf("La creazione del test2 non e' andata a buon fine\n");
+		printf("La creazione del test non e' andata a buon fine\n");
+	//printf("Bene bene\n");//printf("La creazione del test è andata a buon fine");
 	return 0;
 }
 
-int test1(){
+/*int test1(){
 	FILE *test1;
 	test1 = fopen("test1.txt", "w");
 	list *nomi= list_init();
@@ -73,7 +71,7 @@ int test1(){
 	fprintf(test1,"quit\n");
 	fclose(test1);
 	return TRUE;
-}
+}*/
 
 int test2(){
 	FILE *test2;
@@ -84,14 +82,15 @@ int test2(){
 	char *nom=create_name();
 	add_name(&nomi,nom);
 	fprintf(test2,"pnew %s\n", nom);
-	//CREO UN FOTTIO DI PROCESSIIIIII!!!!!
+	
+	int n_processi_da_creare = (rand()+100)%N_MAX_PROCESS;
+
 	for(int i=0 ; i < n_processi_da_creare ; i++){
 		int boh = rand()%2;
 		if( boh==0 ){ //pnew: creo il nome e inserisco il nome nella lista
 			char* nome = create_name();
 			add_name(&nomi, nome);
 			fprintf(test2, "%s %s\n", commands[2], (list_lookup(nomi,nome))->name_process);
-			printf("Il numero di elementi e': %i\n", list_size(nomi));
 		}else{ //pspwan: se lista vuota manda il comando con un nome a caso, altrimenti controlla quanti pspawnsono stati fatti su di lui
 			if(nomi==NULL){
 				fprintf(test2,"%s %s\n", commands[5], create_name());
@@ -99,28 +98,23 @@ int test2(){
 				int n = rand()%list_size(nomi); //Seleziono un elemento n dalla lista dei nomi dei processi creati/spawnati
 				fprintf(test2, "%s %s\n", commands[5], (n_elem_lista(nomi,n))->name_process);
 				n_elem_lista(nomi,n)->i++; //Incremento il numero di processi spawnati da quel processo
-				printf("Il numero di ps avvenuti al processo %s sono %d\n",n_elem_lista(nomi,n)->name_process, (n_elem_lista(nomi,n))->i);
 				int trovato = FALSE;
-				for(int j=0; j<=(n_elem_lista(nomi,n))->i && trovato == FALSE; j++ ){ //
-					char* nome_spawnato=(char*)malloc(strlen(n_elem_lista(nomi,n)->name_process)*sizeof(char));
-					sprintf(nome_spawnato,"%s",((n_elem_lista(nomi,n))->name_process));
-					nome_spawnato = (char*)realloc(nome_spawnato,(sizeof(nome_spawnato)+1)*(sizeof(char)));
-					strcat(nome_spawnato,"_");
-					char* numero;
-					sprintf(numero,"%d",j);
+				for(int j=0; j<=(n_elem_lista(nomi,n))->i && trovato == FALSE; j++ ){
+					//Creo il nome con gli underscore e il numero di processi spawnati
+					char* nome_spawnato=(char*)malloc((strlen(n_elem_lista(nomi,n)->name_process)+4)*sizeof(char));
+					snprintf(nome_spawnato,strlen(n_elem_lista(nomi,n)->name_process)+1,"%s",((n_elem_lista(nomi,n))->name_process));
+					nome_spawnato[strlen(nome_spawnato)]='_';
+					char numero[3];
+					snprintf(numero,3,"%i",j);
 					strcat(nome_spawnato,numero);
-					printf("%s\n", nome_spawnato);
 					if(list_lookup(nomi,nome_spawnato) == NULL){
 						add_name(&nomi,nome_spawnato);
 						trovato=TRUE;
 					}
 				}
-				printf("Il numero di elementi e': %i\n", list_size(nomi));
 			}
 		}
 	}
-	printf("\n\n\nStampo la lista dei nomi con %i elementi:\n", list_size(nomi));
-	print_list(nomi);
 
 	int r = rand();
 	r = rand();
@@ -131,12 +125,20 @@ int test2(){
 			char* nome = create_name();
 			add_name(&nomi, nome);
 			fprintf(test2, "%s %s\n", commands[command], (list_lookup(nomi,nome))->name_process);
-		}else if( command==3 || command==4 || command ==6 ){
+		}else if( command==3 || command ==6 ){
 			if(nomi==NULL){
 				fprintf(test2,"%s %s\n", commands[command], create_name());
 			}else{
 				int n = rand()%list_size(nomi);
 				fprintf(test2,"%s %s\n", commands[command], (n_elem_lista(nomi,n))->name_process);
+			}
+		}else if(command==4){
+			if(nomi==NULL){
+				fprintf(test2,"%s %s\n", commands[command], create_name());
+			}else{
+				int n = rand()%list_size(nomi);
+				fprintf(test2,"%s %s\n", commands[command], (n_elem_lista(nomi,n))->name_process);
+				delete_name(nomi,(n_elem_lista(nomi,n))->name_process);
 			}
 		}else if(command == 5){
 			if(nomi==NULL){
