@@ -92,12 +92,15 @@ int main( int argc, char *argv[] ){
 	//apro fifo per spawn
  	mknod(fifo_name,S_IFIFO,0);
  	chmod(fifo_name,0660);
+
+ 	int file_flag = 0;
 	/**
 	 * 	Fase di lettura degli argomenti
 	*/
 	if(argc == 2){	//Se c'è esattamente un argomento viene aperto il file che corrisponde al path "argv[1]"
 		//FILE * testFile;
 		//testFile = fopen (argv[1],"r");-----------------------------------------------------------------------
+		file_flag = 1;
 		freopen(argv[1], "r", stdin);
 	} else if( argc > 2 ){
 		printf("\tInseriti troppi argomenti (Max 1) \n");
@@ -250,7 +253,8 @@ int main( int argc, char *argv[] ){
 		strcpy(token,"");
 		strcpy(command,"");
 		command_num = -1;
-
+		if(file_flag == 1)
+			usleep(300000);
 	}while(1);
 	return 0;
 }
