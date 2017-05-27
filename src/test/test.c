@@ -10,8 +10,7 @@
 // Uno con esagerazione di processi
 
 /*TODO things:
-Lista dei nomi (implementare list size) e fare ritornare [n]esimo elemento della lista string(?) n_elem_lista()
-Creazione e modifica nomi pspawn
+Fixare l'abort per numeri processi alti, fare il delite dalla lista quando si chiama il comando delite <nome>
 */
 
 //Lista comandi
