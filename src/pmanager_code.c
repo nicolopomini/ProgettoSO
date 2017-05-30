@@ -498,7 +498,7 @@ int prmall_f(char* name){
 	printf("\n\tRichiesta di chiusura ricorsiva sul processo con nome %s\"%s\"%s\n",BBLU,name,KNRM);
 	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
  	{
- 		(stderr, "\t%sERRORE:%s la chiusura del manager si attua con il comando %s\"quit\"%s\n",BRED,KNRM,BNRM,KNRM);
+ 		fprintf(stderr, "\t%sERRORE:%s la chiusura del manager si attua con il comando %s\"quit\"%s\n",BRED,KNRM,BNRM,KNRM);
  		return TRUE;
  	}
 	tree* todelete = map_lookup(map_manager,name);
