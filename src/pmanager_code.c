@@ -201,7 +201,6 @@ int main( int argc, char *argv[] ){
 			case 1:{ //quit
 				if(checkInput(0,command_num,token,NULL)){
                     quit_f();
-                    //plist_f();    //just to debug
 					return 0;
 				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
@@ -343,37 +342,37 @@ void quit_f() {
 */
 int pnew_f(char* name){
 	printf("\n\tRichiesta di creazione nuovo processo con nome %s\"%s\"%s.\n",BBLU,name,KNRM);
-	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
+	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)	//controlla che non si voglia dare il nome del manager
  	{
  		fprintf(stderr, "\t%sERRORE:%s il nuovo processo non può avere il nome del manager.\n",BRED,KNRM);
  		return TRUE;
  	}
-	if (map_lookup(map_manager,name) == NULL) {
+	if (map_lookup(map_manager,name) == NULL) {	//controlla che il nome sia "libero"
 		int fd[2];
-		pipe(fd);
+		pipe(fd);	//pipe anonima per sincronizzazione
 		int f = fork();
 		if(f < 0)
 		{
 			fprintf(stderr, "\t%sERRORE:%s processo non generato, errore durante il fork.\n",BRED,KNRM);
 			return FALSE;
 		}
-		else if(f == 0)
+		else if(f == 0)	//figlio
 		{
 			close(fd[0]);
-			char pipe_child[10];
-			sprintf(pipe_child, "%d", fd[1]);
-			char *const parmList[] = {"processo", pipe_child ,NULL};
+			char pipe_child[10];	//buffer per contenere l'id della pipe
+			sprintf(pipe_child, "%d", fd[1]);	//conversione in stringa dell'id della pipe
+			char *const parmList[] = {"processo", pipe_child ,NULL};	//array di argomenti da passare ad exec, contenente l'id della pipe
 			execv("./processo",parmList);
 			return FALSE;	//non dovrebbe mai essere eseguito
 		}
-		else
+		else	//padre (manager)
 		{
-			char message[2];
+			char message[2];	//buffer per ricevere il messaggio di sincronizzazione
 			close(fd[1]);
-			read(fd[0], message, 2);
+			read(fd[0], message, 2);	//aspetto il messaggio di sincronizzazione
 			close(fd[0]);
-			tree* added = tree_insert(&tree_manager,f,name);
-			map_add(&map_manager,name,added);
+			tree* added = tree_insert(&tree_manager,f,name);	//aggiungo il nuovo processo all'albero
+			map_add(&map_manager,name,added);	//aggiungo il nuovo processo alla mappa
 			printf("\tIl processo %s\"%s\"%s e' stato creato con successo.\n",BBLU,name,KNRM);
 		}
 
@@ -440,12 +439,12 @@ int pclose_f(char*name){
 int pspawn_f(char* name){
   	printf("\n\tRichiesta di clonazione del processo con nome %s\"%s\"%s\n",BBLU,name,KNRM);
 
- 	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)
+ 	if(strcmp(name,"manager") == 0 || strcmp(name,"pmanager") == 0)	//controllo che non si tenti di clonare il manager
  	{
  		fprintf(stderr, "\t%sERRORE:%s vietato clonare il manager\n",BRED,KNRM);
  		return TRUE;
  	}
- 	tree *toclone = map_lookup(map_manager,name);
+ 	tree *toclone = map_lookup(map_manager,name);	//ricerco il processo da clonare
  	if(toclone == NULL) //non esiste
  	{
  		fprintf(stderr, "\t%sERRORE:%s il processo %s\"%s\"%s non esiste.\n\tImpossibile Clonare\n",BRED,KNRM,BBLU,name,KNRM);
@@ -453,14 +452,14 @@ int pspawn_f(char* name){
  	}
  	else
  	{
- 		char *newname = malloc(sizeof(char)*30);
+ 		char *newname = malloc(sizeof(char)*30);	//creo il nome del nuovo processo: proc_i
  		strcpy(newname,name);
  		int figli = toclone->child_number;
  		char tmp[10];
  		sprintf(tmp, "%d", figli);
  		strcat(newname, "_");
- 		strcat(newname,tmp);
- 		int k = kill(toclone->pid, SIGUSR2);
+ 		strcat(newname,tmp);						//fine creazione nome
+ 		int k = kill(toclone->pid, SIGUSR2);		//invio segnale di clonazione al processo
         if(k == -1) //errore nel kill
         {
             fprintf(stderr, "%sERRORE:%s fallita comunicazione con il processo %s\"%s\"%s (%s%d%s)\n",BRED,KNRM,BBLU,name,KNRM,BBLU,toclone->pid,KNRM);
@@ -471,20 +470,20 @@ int pspawn_f(char* name){
             printf("\tRichiesta di clonazione inviata al processo %s\"%s\"%s\n",BBLU,name,KNRM);
             int fd;
             do{
-              	fd = open(fifo_name, O_RDONLY);
+              	fd = open(fifo_name, O_RDONLY);		//apro fifo per comunicare col processo
             }while(fd == -1);
             char fromchild[10];
-            if(read(fd, fromchild, sizeof(fromchild)) == -1)
+            if(read(fd, fromchild, sizeof(fromchild)) == -1) 	//leggo il pid del nuovo processo generato
             {
             	fprintf(stderr, "%sERRORE:%s fallita comunicazione con il processo %s\"%s\"%s (%s%d%s)\n",BRED,KNRM,BBLU,name,KNRM,BBLU,toclone->pid,KNRM);
                 return FALSE;
             }
             int newpid;
             sscanf(fromchild, "%d", &newpid);
-            tree *insered = tree_insert(&toclone,newpid,newname);
-            map_add(&map_manager,newname,insered);
+            tree *insered = tree_insert(&toclone,newpid,newname);	//inserisco il nuovo processo nell'albero
+            map_add(&map_manager,newname,insered);					//inserisco il nuovo processo nella mappa
             //read for synch
-            read(fd, fromchild, sizeof(fromchild));
+            read(fd, fromchild, sizeof(fromchild));					//lettura dalla fifo per sincronizzazione con il processo
             close(fd);
         }
  	}
@@ -606,7 +605,6 @@ void overridden_tree_delete(tree **t) {
 	}
 
 	map_remove(&map_manager,(*t)->name);
-	//printf("\t\tremoving %d\n", (*t)->pid);
 	tree_remove(*t);
 }
 
@@ -614,5 +612,4 @@ void overridden_tree_delete(tree **t) {
 void child_death_wait(int sig) {
     int status;
     wait(&status);
-    //printf("Morto %d s:%d\n",wait(&status), status);
 }
