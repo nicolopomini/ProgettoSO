@@ -17,7 +17,8 @@ Fixare l'abort per numeri processi alti, fare il delite dalla lista quando si ch
 const char *commands[8]={"phelp","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
 const int DIM = 15; //Dimensione di un nome di un processo (senza gli spawn) 
 const int NUM_COMMANDS = 100; //Numero massimo di comandi nel test
-const int N_MAX_PROCESS = 10000; //Numero di processi da creare nel test2
+const int N_MAX_PROCESS = 80; //Numero di processi da creare nel test2
+const int N_MIN_PROCESS = 10;
 //
 int test1();
 int test2();
@@ -28,50 +29,8 @@ int main(){
 	list *prova = list_init();
 	if( test2() == 0 )
 		printf("La creazione del test non e' andata a buon fine\n");
-	//printf("Bene bene\n");//printf("La creazione del test è andata a buon fine");
 	return 0;
 }
-
-/*int test1(){
-	FILE *test1;
-	test1 = fopen("test1.txt", "w");
-	list *nomi= list_init();
-	srand(time(NULL));
-
-	int r = rand();
-	r = rand();
-
-	for(int i=0 ; i < (r%NUM_COMMANDS) ; i++){
-		int command = rand()%8;
-		if (command == 2){
-			char* nome = create_name();
-			add_name(&nomi, nome);
-			fprintf(test1, "%s %s\n", commands[command], (list_lookup(nomi,nome))->name_process);
-		}else if( command==3 || command==4 || command ==6 ){
-			if(nomi==NULL){
-				fprintf(test1,"%s %s\n", commands[command], create_name());
-
-			}else{
-				int n = rand()%list_size(nomi);
-				fprintf(test1,"%s %s\n", commands[command], (n_elem_lista(nomi,n))->name_process);
-			}
-		}else if(command == 5){
-			if(nomi==NULL){
-				fprintf(test1,"%s %s\n", commands[command], create_name());
-			}else{
-			int n = rand()%list_size(nomi);
-			fprintf(test1, "%s %s\n", commands[command], (n_elem_lista(nomi,n))->name_process);
-			((n_elem_lista(nomi,n))->i)++;
-			}
-		}else{
-			fprintf(test1,"%s\n", commands[command]);
-		}
-	}
-	fprintf(test1,"ptree\n");
-	fprintf(test1,"quit\n");
-	fclose(test1);
-	return TRUE;
-}*/
 
 int test2(){
 	FILE *test2;
@@ -81,15 +40,15 @@ int test2(){
 
 	char *nom=create_name();
 	add_name(&nomi,nom);
-	fprintf(test2,"pnew %s\n", nom);
+	fprintf(test2,"pnew %s\n", nom);	//Esegue un pnew per evitare close su processi inesistenti
 	
-	int n_processi_da_creare = (rand()+100)%N_MAX_PROCESS;
+	int n_processi_da_creare = (rand()%(N_MAX_PROCESS-N_MIN_PROCESS))+N_MIN_PROCESS; //Crea un numero random compreso tra MIN e MAX
 
 	for(int i=0 ; i < n_processi_da_creare ; i++){
-		int boh = rand()%2;
-		if( boh==0 ){ //pnew: creo il nome e inserisco il nome nella lista
+		int flag = rand()%2;	//Se 0 fa operazioni pnew, se 1 pspawn
+		if( flag==0 ){ //pnew: creo il nome e inserisco il nome nella lista
 			char* nome = create_name();
-			add_name(&nomi, nome);
+			add_name(&nomi, nome);		//Aggiunge il nome creato alla lista dei nomiprocessi
 			fprintf(test2, "%s %s\n", commands[2], (list_lookup(nomi,nome))->name_process);
 		}else{ //pspwan: se lista vuota manda il comando con un nome a caso, altrimenti controlla quanti pspawnsono stati fatti su di lui
 			if(nomi==NULL){
@@ -153,16 +112,17 @@ int test2(){
 		}
 	}
 	fprintf(test2,"ptree\n");
+	fprintf(test2,"quit\n");
 	fclose(test2);
 	return TRUE;
 }
 
-char* create_name(){
+char* create_name(){	//Crea un nome casuale composto dal lettere minuscole e maiuscole
 	char* nome_processo;
 	int c= rand();
 	if(c==0){ c=1; }
 	nome_processo =(char*)malloc(c*sizeof(char));
-	for( int i =0 ; i < c%DIM ; i++){
+	for( int i =0 ; i < (c%DIM) ; i++){
 		char letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"[rand() % 52]; //Per la stringa utilizza soltanto una di queste lettere
 		nome_processo[i]=letter;
 	}

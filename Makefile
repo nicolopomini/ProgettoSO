@@ -12,15 +12,18 @@ TESTCODEPATH= ./../src/test/test.c ./../src/test/list.c
 help:
 	@ echo Domenico Stefani , Matteo Tadiello, Nicoló Pomini, Ivan Martini;
 	@ echo 178495 - 180008 - 180058 - 180087;
-	@ echo -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-	@ echo Il software permette, attraverso riga di comando, di gestire una serie di operazioni
-	@ echo sui processi tra le quali: creazione di nuovi processi, clonazione di processi, chiusura di processi, ecc.
-	@ echo I processi vengono gestiti con l ausilio di un albero centralizzato sul manager
-	@ echo permettendo quindi una gestione dei processi logicamente più ordinata.
-	@ echo Per compilare il codice scrivere: make build
-	@ echo Per eseguirlo scrivere: make run
-	@ echo Per la modalità di test scrivere: make test
-	@ echo Per pulire la cartella del progetto scrivere: make clean;
+	@ echo ═════════════════════════════════════════════════════════════════════════════════════;
+	@ echo Il software permette, attraverso riga di comando, di gestire una serie di operazioni;
+	@ echo sui processi tra le quali: creazione di nuovi processi, clonazione di processi,;
+	@ echo chiusura di processi, ecc.;
+	@ echo Regole disponibili:
+	@ echo make build - Esegue la compilazione del codice sorgente;
+	@ echo make run - Esegue il progetto in maniera corretta;
+	@ echo make test - Genera un file contenente comandi casuali ed esegue il progetto inserendo
+	@ echo automaticamente quei comandi;
+	@ echo make assets - Genera la cartella assets usata per i file temporanei;
+	@ echo make clean - Rimuove le cartelle generate dalle regole precedenti;	
+	@ echo ═════════════════════════════════════════════════════════════════════════════════════;
 
 #Clean: elimina le eventuali directory create con le regole build e assets
 clean:
