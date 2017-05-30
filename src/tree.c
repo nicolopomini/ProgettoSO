@@ -138,9 +138,28 @@ void printCustomTree(tree *t, int first, int last) {
 	if (first == 1) {
 		printf(" %s%s%s\n",BYEL,t->name,KNRM);
 	} else {
+		char *indentation_str = (char*) malloc(sizeof(char)*1);
+		indentation_str[0] = 0;
+
 		for (int i = 0; i < t->depth-1; ++i) {
-			printf("  \u2502 ");	
+			tree* check_char = t;
+			for (int j = 0; j < i+1; ++j) {
+				check_char = check_char->parent;					
+			}
+
+			char *tmp;
+			tmp = (char*) malloc(sizeof(char)*(strlen(indentation_str)+5));
+			if (check_char->sibling == NULL){
+				strcpy(tmp,"    ");
+			} else {
+				strcpy(tmp,"  \u2502 ");	
+			}
+			strcat(tmp, indentation_str);
+			free(indentation_str);
+			indentation_str = tmp;
 		}
+
+		printf("%s",indentation_str);
 		
 		if (last == 1) {
 			printf("  \u2514\u2500%s%s%s\n",(t->active == 1?BGRN:BRED),t->name,KNRM);
