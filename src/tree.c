@@ -9,7 +9,7 @@
 #include "tree.h"
 
 #define KNRM  "\x1B[0m"
-#define BNRM  "\033[1m\033[37m" 
+#define BNRM  "\033[1m\033[37m"
 
 #define KRED  "\x1B[31m"
 #define BRED  "\033[1m\033[31m"
@@ -18,7 +18,7 @@
 #define BGRN  "\033[1m\033[32m"
 
 #define KYEL  "\x1B[33m"
-#define BYEL  "\033[1m\033[33m"     
+#define BYEL  "\033[1m\033[33m"
 
 #define KBLU  "\x1B[34m"
 #define BBLU  "\033[1m\033[34m"
@@ -27,7 +27,7 @@
 #define BMAG  "\033[1m\033[35m"
 
 #define KCYN  "\x1B[36m"
-#define BCYN  "\033[1m\033[36m" 
+#define BCYN  "\033[1m\033[36m"
 
 void tree_init(tree **t) {
 	(*t) = NULL;
@@ -59,7 +59,7 @@ tree* tree_insert(tree **t, int pid, char* name) {
 		add->parent = (*t);
 		add->depth = (*t)->depth+1;
 		if (tree_empty((*t)->child)) {
-			//t has no child. link directly to the parent	
+			//t has no child. link directly to the parent
 			(*t)->child = add;
 		} else {
 			//t already has a child. find the last sibling and link the node to it
@@ -80,7 +80,7 @@ int tree_remove(tree *t) {
 				//we can remove the node
 				//we have 2 situations: t is a child or t is a sibling (as in the insert)
 				if (t->parent->child == t) {
-					t->parent->child = t->sibling; 
+					t->parent->child = t->sibling;
 				} else {
 					tree* prec = t->parent->child;
 					while(prec->sibling != t) {
@@ -97,7 +97,7 @@ int tree_remove(tree *t) {
 				return 1;
 			}
 		} else {
-			//failed to remove, because the signal wasn't delivered in the correct way. 
+			//failed to remove, because the signal wasn't delivered in the correct way.
 			return 0;
 		}
 	} else {
@@ -108,7 +108,7 @@ int tree_remove(tree *t) {
 
 void tree_delete(tree **t) {
 	/*recursively call the delete on all the children of the node.
-	the when a node has no children remove it. There is no need to 
+	the when a node has no children remove it. There is no need to
 	search all the siblings because as you delete the child of a node,
 	the siblings takes it place. (I love this function, is really magical)
 	*/
@@ -144,7 +144,7 @@ void printCustomTree(tree *t, int first, int last) {
 		for (int i = 0; i < t->depth-1; ++i) {
 			tree* check_char = t;
 			for (int j = 0; j < i+1; ++j) {
-				check_char = check_char->parent;					
+				check_char = check_char->parent;
 			}
 
 			char *tmp;
@@ -152,7 +152,7 @@ void printCustomTree(tree *t, int first, int last) {
 			if (check_char->sibling == NULL){
 				strcpy(tmp,"    ");
 			} else {
-				strcpy(tmp,"  \u2502 ");	
+				strcpy(tmp,"  \u2502 ");
 			}
 			strcat(tmp, indentation_str);
 			free(indentation_str);
@@ -160,12 +160,12 @@ void printCustomTree(tree *t, int first, int last) {
 		}
 
 		printf("%s",indentation_str);
-		
+
 		if (last == 1) {
 			printf("  \u2514\u2500%s%s%s\n",(t->active == 1?BGRN:BRED),t->name,KNRM);
 		} else {
 			printf("  \u251C\u2500%s%s%s\n",(t->active == 1?BGRN:BRED),t->name,KNRM);
-		}	
+		}
 	}
 
 	tree* tmp = t->child;
@@ -181,7 +181,7 @@ void printCustomTree(tree *t, int first, int last) {
 //the wrapper of the recursive function
 void tree_print_tree(tree* t) {
 	printCustomTree(t,1,1);
-	
+
 }
 
 //Prints in a really cool way some info on the tree node passed
