@@ -11,9 +11,6 @@
 *   pnew <nome>​ : crea un nuovo processo con nome <nome>
 *   pinfo <nome>​ : fornisce informazioni sul processo <nome> (almeno ​ pid ​ e ​ ppid ​ )
 *   pclose: esce dalla shell custom
-
-	Da compilare gcc pmanager_code.c list.c map.c
-	E prima compilare anche gcc process.c list.c -o processo
 */
 
 #include <stdio.h>
@@ -32,7 +29,7 @@
 #define FALSE 0
 #define ERROR -1
 
-#define COMMAND_LENGTH 30
+#define COMMAND_LENGTH 50	//Lunghezza stringa comando
 
 #define KNRM  "\x1B[0m"
 #define BNRM  "\033[1m\033[37m"
@@ -55,12 +52,17 @@
 #define KCYN  "\x1B[36m"
 #define BCYN  "\033[1m\033[36m"
 
-char *commands[9]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
-tree* tree_manager;
-map map_manager;
-const char fifo_name[] = "fifo/FIFO_SO_PROJECT";
+char commands[9][7]={"phelp","quit","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};	//Array di comandi utilizzabili (9 stringhe)
+tree* tree_manager;	//Albero di gestione dei processi
+map map_manager;	//Mappa per la gestione dei nome-ProcessID
+const char fifo_name[] = "fifo/FIFO_SO_PROJECT";	//Fifo
 
-int phelp_f();	// "_f" perchè altrimenti pclose è in conflitto con una funzione pclose sulle pipe
+/**
+ * Funzioni che contengono l'implementazione dei comandi
+ * Dove necessario si prende in input una stringa che contiene
+ * il nome del processo su cui operare
+*/
+int phelp_f();
 int plist_f();
 int pnew_f(char* name);
 int pinfo_f(char* name);
@@ -73,9 +75,22 @@ void quit_f();
 /**
  *	Funzioni gestione stringhe
 */
+	/*
+	 * int checkInput(int arguments_number, int command_num, char * token, char* argumentReturn);
+	 * Controlla se la stringa di comando contiene il numero corretto di argomenti (0 oppure 1 in base al comando)
+	 * e restituisce l'eventuale argomento
+	 * Parametri:
+	 * - arguments_number : Numero di parametri che ci si aspetta
+	 * - command_num : Numero progressivo che rappresenta il comando (indice di commands[9])
+	 * - token: token generato dalla funzione strtok di string.h
+	 * - argumentReturn stringa contenente l'eventuale argomento (In base al comando)
+	 *	Return:
+	 * - FALSE: Se si è verificato un errore (Troppi argomenti o troppo pochi)
+	 * - TRUE: Se non ci sono stati errori
+	*/
 int checkInput(int arguments_number, int command_num, char * token, char* argumentReturn);
-void all_lowercase(char* word);
-int string_equals( char* first , char* second);
+void all_lowercase(char* word); //Rende lowercase ogni carattere alfabetico di word
+int string_equals( char* first , char* second);	//Restituisce TRUE se le stringhe sono uguali, FALSE altrimenti
 
 void overridden_tree_delete(tree **t);
 void child_death_wait(int sig);
@@ -93,16 +108,18 @@ int main( int argc, char *argv[] ){
  	mknod(fifo_name,S_IFIFO,0);
  	chmod(fifo_name,0660);
 
- 	int file_flag = 0;
 	/**
-	 * 	Fase di lettura degli argomenti
+	 * Flag che indica se il software legge comandi da terminale (STANDARD) oppure se si leggono
+	 * da un file testuale (MODALITA' TEST)
+	 * 0-STANDARD / 1-TEST
 	*/
+ 	int file_flag = 0;
+
+	/**	Fase di lettura degli argomenti */
 	if(argc == 2){	//Se c'è esattamente un argomento viene aperto il file che corrisponde al path "argv[1]"
-		//FILE * testFile;
-		//testFile = fopen (argv[1],"r");-----------------------------------------------------------------------
-		file_flag = 1;
-		freopen(argv[1], "r", stdin);
-	} else if( argc > 2 ){
+		file_flag = 1;	//file_flag = 1 significa che la modalità di test è attiva
+		freopen(argv[1], "r", stdin); //Apre il file con path argv[1] e lo sostituisce allo standard input
+	} else if( argc > 2 ){	//Se gli argomenti sono più di due c'è un errore
 		printf("\tInseriti troppi argomenti (Max 1) \n");
 		return(1);
 	}
@@ -120,21 +137,27 @@ int main( int argc, char *argv[] ){
 	*/
 	char command[COMMAND_LENGTH];	//Stringa che deve contenere il comando letto
 	int command_num = -1; //Codice riferito al comando letto
-	//char nome_processo[50];
 
 	do{
-		printf("%s> %s",BGRN,KNRM);
-		fgets(command,COMMAND_LENGTH,stdin);	//Prende tutto l'input fino all'invio
-		if(argc == 2)
-			printf("%s%s %s",BGRN,command,KNRM);
-		//BISOGNA RISOLVERE BUG:
-		//Quando si inserisce lo spazio c'è un bug
+		printf("%s> %s",BGRN,KNRM);	//Stampa la parentesi uncinata come indicatore nel terminale
+		fgets(command,COMMAND_LENGTH,stdin);	//Prende tutta la stringa dall'input fino al backspace
 
-		if(strlen(command) <= 1){	//SE IL COMANDO NON E' SOLO UN INVIO
+		if(file_flag == 1) //Se il programma è in modalità test bisogna stampare il comando letto dal file
+			printf("%s%s %s",BGRN,command,KNRM);
+
+		/*
+		 * Se il "comando inserito" è un semplice carattere di backspace
+		 * le successive 4 righe di codice risolvono un problema di fgets
+		 * che restituirebbe una stringa che porta ad un segmentation fault
+		*/
+		if(strlen(command) <= 1){
 			command[0] = '\0';
-			strcpy(command,	"space\n");
+			strcpy(command,	"space\n"); 	//Space è un "comando" aggiuntivo che manda semplicemente a capo il terminale
 		}
 
+		/**
+		 *	Sostituzione dell'invio al termine della stringa con il carattere terminatore '\0'
+		*/
 		int found_flag = FALSE;
 		for(int i = 0;(i < COMMAND_LENGTH) && (found_flag == FALSE); i++){
 			if(command[i] == '\n'){
@@ -143,19 +166,28 @@ int main( int argc, char *argv[] ){
 			}
 		}
 
-		all_lowercase(command);	//viene convertita la stringa comando in lower case
+		all_lowercase(command);	//Conversione della stringa comando in lower case
 
 		/**
 		 *  Fase di riduzione della stringa del comando in tokens per dividere il comando da eventuali argomenti
+		 *  Dopo l'esecuzione di questa funzione i tokens sono stringhe che contengono una singola parola (ognuno)
+		 *  della stringa di comando. Il carattere separatore delle parole è un blank
 		*/
 		char* token = strtok(command, " ");	//Tokenizer, divide in tokens la stringa dove trova blank
 
+		//Controlla se il primo token corrisponde a uno dei comandi nell'array di comandi e assegna command num al valore corispondente
 		for (int j = 0; j < 9; ++j)
 			if (string_equals(token,commands[j]) == TRUE)
 				command_num = j;	//Per ogni comando, se la stringa è uguale ad esso, command num viene impostato all'indice di command[]
+		//Se invece il token equivale al "comando aggiuntivo" space, si setta command
 		if(string_equals(token,"space"))
 			command_num = 9; //SPACE command
 
+		/**
+		 * Switch-case fondamentale
+ 		 * In base a command_num viene chiamata la funzione corrispondente
+ 		 * facendo controllo di errore sugli argomenti dove necessario
+		*/
 		switch(command_num){
 			case 0:{ //phelp
 				if(checkInput(0,command_num,token,NULL)){
@@ -163,7 +195,7 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione phelp\n",BRED,KNRM);
 						return 1;
 					}
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
 			case 1:{ //quit
@@ -171,7 +203,7 @@ int main( int argc, char *argv[] ){
                     quit_f();
                     //plist_f();    //just to debug
 					return 0;
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
 			case 2:{ //plist
@@ -180,7 +212,7 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione plist\n",BRED,KNRM);
 						return 1;
 					}
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
 			case 3:{ //pnew
@@ -190,7 +222,7 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione pnew\n",BRED,KNRM);
 						return 1;
 					}
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
 			case 4:{ //pinfo
@@ -200,7 +232,7 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione pinfo\n",BRED,KNRM);
 						return 1;
 					}
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
 			case 5:{ //pclose
@@ -210,7 +242,7 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione pclose\n",BRED,KNRM);
 						return 1;
 					}
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
 			case 6:{ //pspawn
@@ -220,7 +252,7 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione pspawn\n",BRED,KNRM);
 						return 1;
 					}
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
 			case 7:{ //prmall
@@ -230,7 +262,7 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione prmall\n",BRED,KNRM);
 						return 1;
 					}
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
 			case 8:{ //ptree
@@ -239,11 +271,11 @@ int main( int argc, char *argv[] ){
 						fprintf(stderr,"\t%sERRORE:%s comportamento inaspettato della funzione ptree\n",BRED,KNRM);
 						return 1;
 					}
-				}
+				}	//Se checkInput ritorna FALSE non bisogna terminare il programma poichè si tratta di un errore non bloccante e già segnalato dalla funzione via terminale
 				break;
 			}
-			case 9:break;	//spazio
-			default:{
+			case 9:break;	//spazio, non viene eseguito niente
+			default:{	//CASE di default, la stringa non è valida
 				printf("\t%sATTENZIONE:%s Stringa non valida,reinserire.%s\n\tPer ulteriori informazioni sull' utilizzo di questo programma digitare %s\"phelp\"%s\n",BYEL,KYEL,KNRM,BNRM,KNRM);
 				break;
 			}
@@ -253,8 +285,10 @@ int main( int argc, char *argv[] ){
 		strcpy(token,"");
 		strcpy(command,"");
 		command_num = -1;
-		if(file_flag == 1)
+
+		if(file_flag == 1)	//Se il programma è in modalità test si inserisce un delay tra i comandi per rendere più leggibile l'output
 			usleep(300000);
+
 	}while(1);
 	return 0;
 }
@@ -263,8 +297,7 @@ int main( int argc, char *argv[] ){
  *	FUNZIONI DELLA SHELL
 */
 
-int phelp_f(){
-
+int phelp_f(){	//Descrizione dei comandi utilizzabili
 	printf("\n\t%sPMANAGER 0.0.1\n",BYEL);
 	printf("\t%sUsage:\t\t%scommand [parameters]\n",BNRM,KNRM);
 	printf("\t%squit​:\t\t%sesce dalla shell custom\n",BNRM,KNRM);
@@ -284,11 +317,15 @@ int phelp_f(){
 */
 int plist_f(){
 	printf("\n\tRichiesta di informazioni su tutti i processi attivi\n");
-	tree_print_list(tree_manager);
+	tree_print_list(tree_manager);	//Funzione di stampa dell'albero di gestione
 	printf("\n");
 	return TRUE;
 }
 
+/**
+ *	Funzione di chiusura del terminale
+ *  Prima di chiudere il programma si chiudono tutti i processi generati e la fifo viene scollegata
+*/
 void quit_f() {
 	int toclose = tree_getNumberOfChildren(tree_manager);
 	tree *t, *tmp;

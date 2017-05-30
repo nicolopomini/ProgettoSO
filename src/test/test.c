@@ -1,21 +1,15 @@
+/**
+ *	Codice che crea il file di test (test2.txt)*
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include "list.h"
 
-//Crea tre file di test:
-// Test1 nomi e funzioni random
-// Test2 Numero alto di processi creati
-
-
-/*TODO things:
-Fixare l'abort per numeri processi alti, fare il delite dalla lista quando si chiama il comando delite <nome>
-*/
-
 //Lista comandi
 const char *commands[8]={"phelp","plist","pnew","pinfo","pclose","pspawn","prmall","ptree"};
-const int DIM = 15; //Dimensione di un nome di un processo (senza gli spawn) 
+const int DIM = 15; //Dimensione di un nome di un processo (senza gli spawn)
 const int NUM_COMMANDS = 100; //Numero massimo di comandi nel test
 const int N_MAX_PROCESS = 80; //Numero di processi da creare nel test2
 const int N_MIN_PROCESS = 10;
@@ -41,7 +35,7 @@ int test2(){
 	char *nom=create_name();
 	add_name(&nomi,nom);
 	fprintf(test2,"pnew %s\n", nom);	//Esegue un pnew per evitare close su processi inesistenti
-	
+
 	int n_processi_da_creare = (rand()%(N_MAX_PROCESS-N_MIN_PROCESS))+N_MIN_PROCESS; //Crea un numero random compreso tra MIN e MAX
 
 	for(int i=0 ; i < n_processi_da_creare ; i++){
