@@ -13,8 +13,7 @@ const int DIM = 15; //Dimensione di un nome di un processo (senza gli spawn)
 const int NUM_COMMANDS = 100; //Numero massimo di comandi nel test
 const int N_MAX_PROCESS = 80; //Numero di processi da creare nel test2
 const int N_MIN_PROCESS = 10;
-//
-int test1();
+
 int test2();
 char* create_name(); //Restituisce un nome di lunghezza variabile (max DIM)
 
