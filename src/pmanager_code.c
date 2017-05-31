@@ -337,9 +337,8 @@ void quit_f() {
 	}
     unlink(fifo_name);
 }
-
 /**
- *	Crea un nuovo processo con nome "name"
+ *
 */
 int pnew_f(char* name){
 	printf("\n\tRichiesta di creazione nuovo processo con nome %s\"%s\"%s.\n",BBLU,name,KNRM);
@@ -387,7 +386,7 @@ int pnew_f(char* name){
 }
 
 /**
- *	Stampa informazioni sui comandi utilizzabili
+ *
 */
 int pinfo_f(char* name){
 	printf("\n\tRichiesta di informazioni sul processo con nome %s\"%s\"%s.\n",BBLU,name,KNRM);
@@ -407,7 +406,7 @@ int pinfo_f(char* name){
 }
 
 /**
- *	Chiude il processo con nome "name se esistente"
+ *
 */
 int pclose_f(char*name){
 	printf("\n\tRichiesta di chiusura processo con nome %s\"%s\"%s\n",BBLU,name,KNRM);
@@ -435,8 +434,7 @@ int pclose_f(char*name){
 }
 
 /**
- *	Clona il processo con nome "name" e il clone viene trattato come figlio nell'albero di gestione
- *	Il nome del figlio sarà: <nomeDelPadre>_<numeroProgressivo>
+ *
 */
 int pspawn_f(char* name){
   	printf("\n\tRichiesta di clonazione del processo con nome %s\"%s\"%s\n",BBLU,name,KNRM);
@@ -493,7 +491,7 @@ int pspawn_f(char* name){
  }
 
 /**
- *	Chiede al processo "name" di chiudersi insieme ai suoi cloni e ricorsivamente ai cloni dei suoi cloni
+ *
 */
 int prmall_f(char* name){
 	printf("\n\tRichiesta di chiusura ricorsiva sul processo con nome %s\"%s\"%s\n",BBLU,name,KNRM);
@@ -516,7 +514,7 @@ int prmall_f(char* name){
 }
 
 /**
- *	Stampa l'albero di gestione dei processi
+ *
 */
 int ptree_f(){
 	printf("\n\tRichiesta di informazioni sulla gerarchia dei processi\n\n");
@@ -525,10 +523,7 @@ int ptree_f(){
 	return TRUE;
 }
 
-/**
- * Controlla se il numero di argomenti inseriti è coerente con il comando
- * Descrizione completa sopra nella dichiarazone esplicita
-*/
+
 int checkInput(int arguments_number, int command_num, char * token, char* argumentReturn){
 	int res = FALSE;
 
@@ -564,7 +559,12 @@ int checkInput(int arguments_number, int command_num, char * token, char* argume
 	return res;
 }
 
-/**		Funzioni di gestione stringhe		*/
+
+
+
+/**
+ *	Funzioni di gestione stringhe
+*/
 
 /**
  * Trasforma tutta la stringa in lower case
@@ -594,14 +594,11 @@ int string_equals( char* first , char* second){
 	return TRUE;
 }
 
-/**
- *
-*/
 void overridden_tree_delete(tree **t) {
 	/*recursively call the delete on all the children of the node.
 	the when a node has no children remove it. There is no need to
 	search all the siblings because as you delete the child of a node,
-	the siblings takes its place. (I love this function, it is really magical)
+	the siblings takes it place. (I love this function, is really magical)
 	*/
 	while (!tree_empty((*t)->child)) {
 		overridden_tree_delete(&(*t)->child);
@@ -611,9 +608,7 @@ void overridden_tree_delete(tree **t) {
 	tree_remove(*t);
 }
 
-/**
- *
-*/
+
 void child_death_wait(int sig) {
     int status;
     wait(&status);
