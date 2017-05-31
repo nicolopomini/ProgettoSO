@@ -32,7 +32,7 @@ clean:
 	@ rm -rf build; rm -rf assets;
 
 #Build: compila in maniera corretta il codice sorgente del processo, esegue clean di default
-build: src/*.c src/*.h src/test/*
+build: src/*.c src/*.h
 	@ $(MAKE) clean;
 	@ mkdir build; cd ./build; mkdir fifo;
 	@ cd ./build; gcc -o processo $(SOURCEPROCESSBUILDPATH);gcc -o pmanager $(SOURCECODEBUILDPATH);gcc -o test_generator $(TESTCODEPATH);
@@ -45,7 +45,7 @@ assets:
 	@ cd build; ./test_generator; mv ./test2.txt ./../assets/; gcc -o test_generator $(TESTCODEPATH);
 
 #Test: esegue assets di default(Quindi ricorsivamente clean e build) ed esegue il programma con parametro il file di test
-test: src/*.c src/*.h src/test/*
+test:
 	@ $(MAKE) assets;
 	@ cd ./build; ./pmanager ./../assets/test2.txt;
 
