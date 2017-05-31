@@ -19,6 +19,8 @@ int test2();
 char* create_name(); //Restituisce un nome di lunghezza variabile (max DIM)
 
 int main(){
+
+	list *prova = list_init();
 	if( test2() == 0 )
 		printf("La creazione del test non e' andata a buon fine\n");
 	return 0;
