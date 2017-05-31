@@ -91,7 +91,6 @@ int test2(){
 			}else{
 				int n = rand()%list_size(nomi);
 				fprintf(test2,"%s %s\n", commands[command], (n_elem_lista(nomi,n))->name_process);
-				delete_name(nomi,(n_elem_lista(nomi,n))->name_process);
 			}
 		}else if(command == 5){
 			if(nomi==NULL){

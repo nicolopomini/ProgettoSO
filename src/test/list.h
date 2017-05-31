@@ -14,7 +14,7 @@ typedef struct name_list{
 
 list* list_init(); //Inizializza la lista a NULL
 void add_name(list **l, char * n); //Inserirsce un nuovo nome nella lista solo se quel nome non esiste già
-void delete_name(list *l, char * n); //ELimina un nome (n) dalla lista (l)
+//void delete_name(list *l, char * n); //ELimina un nome (n) dalla lista (l)
 list* list_lookup(list *l, char * n); //Ritorna l'elemento della lista se esiste altrimenti ritorna NULL
 int list_size(list *l); //Ritorna la lunghezza della lista (0 se è NULL)
 list* n_elem_lista(list *l,int n); //Ritorna l' n-esimo elemento della lista

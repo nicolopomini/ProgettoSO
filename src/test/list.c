@@ -36,7 +36,7 @@ void add_name(list **l, char * n){
 	}
 }
 
-void delete_name(list *l, char * n){
+/*void delete_name(list *l, char * n){
 	list* tmp=list_lookup(l,n);
 	if(tmp!=NULL){
 		(tmp->pred)->succ = tmp->succ;
@@ -44,7 +44,7 @@ void delete_name(list *l, char * n){
 		free(tmp->name_process);
 		free(tmp);
 	}
-}
+}*/
 
 list* list_lookup(list *l, char * n){
 	list* tmp=l;
